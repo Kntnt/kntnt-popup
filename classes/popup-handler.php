@@ -1,0 +1,316 @@
+<?php
+
+namespace Kntnt\Popup;
+
+/**
+ * Class PopupHandler.
+ * Handles the registration and rendering of the [kntnt-popup] shortcode.
+ */
+final class PopupHandler {
+
+    use Shortcode; // Use the custom shortcode_atts trait
+
+    private Assets $assets;
+    private static int $popup_counter = 0; // Ensure unique IDs for each popup on a page
+
+    /**
+     * Constructor.
+     *
+     * @param Assets $assets The Assets manager instance.
+     */
+    public function __construct(Assets $assets) {
+        $this->assets = $assets;
+    }
+
+    /**
+     * Registers the [kntnt-popup] shortcode.
+     */
+    public function register_shortcode(): void {
+        add_shortcode('kntnt-popup', [$this, 'render_popup']);
+    }
+
+    /**
+     * Renders the popup HTML based on shortcode attributes and content.
+     *
+     * @param array|string $atts    Shortcode attributes.
+     * @param string|null  $content Content between the shortcode tags.
+     * @return string The generated HTML for the popup, or an empty string if not armed.
+     */
+    public function render_popup($atts, ?string $content = null): string {
+        self::$popup_counter++;
+
+        // 1. Define default attributes based on spec (values when *omitted*)
+        $defaults = [
+            'id' => false,
+            'shown-on-exit-intent' => false,
+            'show-after-time' => false,
+            'show-after-scroll' => false,
+            'close-button' => false,
+            'close-outside-click' => false,
+            'reappear-delay' => '0', // Default 0 seconds
+            'modal' => false,
+            'overlay-color' => 'rgba(0,0,0,80%)',
+            'width' => 'clamp(300px, 90vw, 800px)',
+            'max-height' => '95vh',
+            'padding' => 'clamp(20px, calc(5.2vw - 20px), 160px)',
+            'position' => 'center',
+            'open-animation' => false,
+            'close-animation' => false,
+            'open-animation-duration' => false, // Use animation's default
+            'close-animation-duration' => false, // Use animation's default
+            'class' => '',
+        ];
+
+        // 2. Parse attributes using the custom method
+        // Need original $atts to check for valueless attributes
+        $original_atts = is_array($atts) ? $atts : [];
+        $parsed_atts = $this->shortcode_atts($defaults, $atts, 'kntnt-popup');
+
+        // 3. Handle "no value assigned" defaults from the spec
+        $no_value_defaults = [
+            'shown-on-exit-intent' => true,
+            'show-after-time' => '30',
+            'show-after-scroll' => '80',
+            'close-button' => '✖', // Unicode multiplication sign
+            'close-outside-click' => true,
+            'reappear-delay' => '1d',
+            'modal' => true,
+            'open-animation' => 'tada',
+            'close-animation' => 'fade-out',
+        ];
+
+        foreach ($no_value_defaults as $key => $no_value_default) {
+            // Check if the attribute was present in the original shortcode input,
+            // potentially without a value
+            if (array_key_exists($key, $original_atts) && ($original_atts[$key] === $key || $original_atts[$key] === '')) {
+                $parsed_atts[$key] = $no_value_default;
+            }
+            // Also handle boolean true explicitly passed for boolean attributes
+            elseif (array_key_exists($key, $original_atts) && $original_atts[$key] === true) {
+                if (in_array($key, ['shown-on-exit-intent', 'close-outside-click', 'modal'])) {
+                    $parsed_atts[$key] = true;
+                }
+            }
+        }
+
+        // 4. Apply filter to allow modification of attributes
+        $parsed_atts = apply_filters('kntnt_popup_shortcode_atts', $parsed_atts);
+
+        // 5. Sanitize and Validate Attributes
+        $sanitized_atts = $this->sanitize_and_validate_attributes($parsed_atts, $defaults);
+
+        // 6. Generate unique ID for this popup instance if none provided
+        $popup_instance_id = $sanitized_atts['id'] ? sanitize_html_class($sanitized_atts['id']) : 'kntnt-popup-' . self::$popup_counter;
+        $sanitized_atts['instance_id'] = $popup_instance_id; // Store for use in template/JS
+
+        // 7. Apply the `kntnt_popup_armed` filter
+        $armed = apply_filters('kntnt_popup_armed', true, $sanitized_atts);
+        if (!$armed) {
+            return ''; // Don't render anything if not armed
+        }
+
+        // 8. Process the content
+        $popup_content = $content ? do_shortcode($content) : ''; // Process nested shortcodes
+
+        // 9. Apply the `kntnt_popup_content` filter
+        $popup_content = apply_filters('kntnt_popup_content', $popup_content, $popup_instance_id);
+
+        // 10. Mark assets as needed for enqueuing
+        $this->assets->mark_assets_needed();
+
+        // 11. Prepare data for JavaScript (will be localized)
+        $js_data = [
+            'instanceId' => $popup_instance_id,
+            'showOnExitIntent' => $sanitized_atts['shown-on-exit-intent'],
+            'showAfterTime' => $sanitized_atts['show-after-time'],
+            'showAfterScroll' => $sanitized_atts['show-after-scroll'],
+            'closeButton' => $sanitized_atts['close-button'] !== false,
+            'closeOutsideClick' => $sanitized_atts['close-outside-click'],
+            'reappearDelay' => $sanitized_atts['reappear-delay'],
+            'isModal' => $sanitized_atts['modal'],
+            'openAnimation' => $sanitized_atts['open-animation'],
+            'closeAnimation' => $sanitized_atts['close-animation'],
+            'openAnimationDuration' => $sanitized_atts['open-animation-duration'],
+            'closeAnimationDuration' => $sanitized_atts['close-animation-duration'],
+        ];
+        $this->assets->add_popup_config($js_data);
+
+        // 12. Generate HTML using a template
+        ob_start();
+        // Pass necessary variables to the template
+        $template_vars = [
+            'instance_id' => $popup_instance_id,
+            'content' => $popup_content,
+            'atts' => $sanitized_atts, // Pass all sanitized attributes
+        ];
+        $this->load_template('popup-template.php', $template_vars);
+        return ob_get_clean() ?: '';
+    }
+
+    /**
+     * Sanitizes and validates parsed attributes.
+     *
+     * @param array $atts Parsed attributes.
+     * @param array $defaults Default attributes for fallback.
+     * @return array Sanitized and validated attributes.
+     */
+    private function sanitize_and_validate_attributes(array $atts, array $defaults): array {
+        $validated = [];
+
+        // ID: Sanitize as class, allow false
+        $validated['id'] = $atts['id'] ? sanitize_html_class($atts['id']) : false;
+
+        // Booleans: Cast to bool
+        $validated['shown-on-exit-intent'] = filter_var($atts['shown-on-exit-intent'], FILTER_VALIDATE_BOOLEAN);
+        $validated['close-outside-click'] = filter_var($atts['close-outside-click'], FILTER_VALIDATE_BOOLEAN);
+        $validated['modal'] = filter_var($atts['modal'], FILTER_VALIDATE_BOOLEAN);
+
+        // Time delay: Allow positive integer or false
+        if ($atts['show-after-time'] !== false) {
+            $time = filter_var($atts['show-after-time'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+            $validated['show-after-time'] = ($time !== false && $time >= 0) ? $time : false;
+        } else {
+            $validated['show-after-time'] = false;
+        }
+
+        // Scroll percentage: Allow integer 0-100 or false
+        if ($atts['show-after-scroll'] !== false) {
+            $scroll = filter_var($atts['show-after-scroll'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+            $validated['show-after-scroll'] = ($scroll !== false && $scroll >= 0 && $scroll <= 100) ? $scroll : false;
+        } else {
+            $validated['show-after-scroll'] = false;
+        }
+
+        // Close button: Allow character string or false
+        $validated['close-button'] = $atts['close-button'] !== false ? esc_html((string)$atts['close-button']) : false;
+
+        // Reappear delay: Parse time string to seconds
+        $validated['reappear-delay'] = $this->parse_time_string((string)$atts['reappear-delay'], $defaults['reappear-delay']);
+
+        // Overlay color: Validate as CSS color (simple check), fallback to default
+        $validated['overlay-color'] = $this->is_valid_css_color($atts['overlay-color']) ? $atts['overlay-color'] : $defaults['overlay-color'];
+
+        // Dimensions/Padding: Sanitize as CSS value (basic check), fallback to default
+        $validated['width'] = $this->sanitize_css_value($atts['width'], $defaults['width']);
+        $validated['max-height'] = $this->sanitize_css_value($atts['max-height'], $defaults['max-height']);
+        $validated['padding'] = $this->sanitize_css_value($atts['padding'], $defaults['padding']);
+
+        // Position: Must be one of the allowed values
+        $allowed_positions = ['center', 'top', 'top-right', 'right', 'bottom-right', 'bottom', 'bottom-left', 'left', 'top-left'];
+        $validated['position'] = in_array($atts['position'], $allowed_positions, true) ? $atts['position'] : $defaults['position'];
+
+        // Animations: Must be one of the allowed values or false
+        $allowed_open_animations = [false, 'tada', 'fade-in', 'fade-in-top', 'fade-in-right', 'fade-in-bottom', 'fade-in-left', 'slide-in-top', 'slide-in-right', 'slide-in-bottom', 'slide-in-left'];
+        $allowed_close_animations = [false, 'fade-out', 'fade-out-top', 'fade-out-right', 'fade-out-bottom', 'fade-out-left', 'slide-out-top', 'slide-out-right', 'slide-out-bottom', 'slide-out-left'];
+        $validated['open-animation'] = in_array($atts['open-animation'], $allowed_open_animations, true) ? $atts['open-animation'] : $defaults['open-animation'];
+        $validated['close-animation'] = in_array($atts['close-animation'], $allowed_close_animations, true) ? $atts['close-animation'] : $defaults['close-animation'];
+
+        // Animation durations: Allow positive integer or false
+        if ($atts['open-animation-duration'] !== false) {
+            $duration = filter_var($atts['open-animation-duration'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+            $validated['open-animation-duration'] = ($duration !== false && $duration >= 0) ? $duration : false;
+        } else {
+            $validated['open-animation-duration'] = false;
+        }
+        if ($atts['close-animation-duration'] !== false) {
+            $duration = filter_var($atts['close-animation-duration'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+            $validated['close-animation-duration'] = ($duration !== false && $duration >= 0) ? $duration : false;
+        } else {
+            $validated['close-animation-duration'] = false;
+        }
+
+        // Custom class: Sanitize space-separated list of classes
+        $validated['class'] = $atts['class'] ? implode(' ', array_map('sanitize_html_class', explode(' ', $atts['class']))) : '';
+
+        return $validated;
+    }
+
+    /**
+     * Parses a time string (e.g., "60s", "5m", "2h", "1d") into seconds.
+     *
+     * @param string $time_string The time string.
+     * @param string $default_string The default time string if parsing fails.
+     * @return int Time in seconds.
+     */
+    private function parse_time_string(string $time_string, string $default_string): int {
+        $time_string = strtolower(trim($time_string));
+        $value = (int)$time_string; // Extract leading integer
+        $unit = preg_replace('/^\d+/', '', $time_string); // Get unit suffix
+
+        $multiplier = match ($unit) {
+            'm' => 60,
+            'h' => 3600,
+            'd' => 86400,
+            default => 1, // 's' or no unit means seconds
+        };
+
+        $seconds = $value * $multiplier;
+
+        // Fallback to default if parsing resulted in 0 or negative, unless original string was '0'
+        if ($seconds <= 0 && $time_string !== '0') {
+            // Re-parse the default string to ensure consistency
+            $default_value = (int)$default_string;
+            $default_unit = preg_replace('/^\d+/', '', $default_string);
+            $default_multiplier = match ($default_unit) {
+                'm' => 60,
+                'h' => 3600,
+                'd' => 86400,
+                default => 1,
+            };
+            return $default_value * $default_multiplier;
+        }
+
+        return $seconds;
+    }
+
+    /**
+     * Basic check for valid CSS color.
+     * Allows hex, rgb, rgba, hsl, hsla, and named colors.
+     * This is not exhaustive but covers common cases.
+     *
+     * @param string $color
+     * @return bool
+     */
+    private function is_valid_css_color(string $color): bool {
+        // Simple regex for common formats. Doesn't validate values strictly.
+        return (bool)preg_match('/^(#([0-9a-f]{3}){1,2}|(rgba?|hsla?)\([\d.,%\s]+\)|[a-z]+)$/i', trim($color));
+    }
+
+    /**
+     * Basic sanitization for CSS length/value strings.
+     * Allows common units, calc(), clamp(), variables, etc.
+     * Removes potentially harmful characters but is not a full CSS parser.
+     *
+     * @param string $value The CSS value.
+     * @param string $default The default value if sanitization fails badly.
+     * @return string Sanitized CSS value.
+     */
+    private function sanitize_css_value(string $value, string $default): string {
+        $value = trim($value);
+        // Allow alphanumeric, %, ., -, (, ), ,, calc, clamp, var, vh, vw, px, em, rem, space
+        if (preg_match('/^[a-zA-Z0-9\s.,%()\-calcvarvhwpemrx:]+$/', $value)) {
+            return esc_attr($value);
+        }
+        // If potentially unsafe characters are found, return the default.
+        return $default;
+    }
+
+    /**
+     * Loads a template file.
+     *
+     * @param string $template_name The name of the template file in the 'templates' directory.
+     * @param array $variables      Variables to extract into the template's scope.
+     */
+    private function load_template(string $template_name, array $variables = []): void {
+        $template_path = plugin_dir_path(dirname(__FILE__)) . 'templates/' . $template_name;
+
+        if (file_exists($template_path)) {
+            // Make variables available to the template file
+            extract($variables, EXTR_SKIP);
+            include $template_path;
+        } else {
+            // Log an error if template is missing
+            error_log("Kntnt Popup Error: Template file not found at {$template_path}");
+        }
+    }
+}
