@@ -16,7 +16,7 @@
 namespace Kntnt\Popup;
 
 // Prevent direct access
-defined('WPINC') || die;
+defined( 'ABSPATH' ) && new Plugin;
 
 // Simple autoloader adhering to project structure
 spl_autoload_register(function ($class) {
