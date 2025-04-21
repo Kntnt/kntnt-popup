@@ -11,6 +11,8 @@
  * License:             GPL-2.0-or-later
  * License URI:         https://www.gnu.org/licenses/gpl-2.0.txt
  * Tested up to:        6.8
+ * Text Domain:         kntnt-popup
+ * Domain Path:         /languages
  */
 
 namespace Kntnt\Popup;
@@ -21,11 +23,10 @@ spl_autoload_register( function ( $class ) {
 		$base_dir = __DIR__ . '/classes/';
 		$relative_class = substr( $class, strlen( $prefix ) );
 		$file = $base_dir . str_replace( '\\', '/', strtolower( str_replace( '_', '-', $relative_class ) ) ) . '.php';
-		error_log( "Loading $file" );
 		if ( file_exists( $file ) ) {
 			require_once $file;
 		}
 	}
 } );
 
-defined( 'ABSPATH' ) && new Plugin;
+defined( 'ABSPATH' ) && Plugin::init(__FILE__);

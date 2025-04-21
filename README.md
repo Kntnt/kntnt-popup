@@ -26,13 +26,13 @@ Kntnt Popup is a lightweight, customizable WordPress plugin that provides an eas
 4. Activate the plugin.
 
 ## Usage
-The plugin provides a shortcode `[kntnt-popup]...[/kntnt-popup]` where the content between the opening and closing tags will be displayed in the popup.
+The plugin provides a shortcode `[popup]...[/popup]` where the content between the opening and closing tags will be displayed in the popup.
 
 ### Basic Usage:
 ```
-[kntnt-popup show-after-time="5"]
+[popup show-after-time="5"]
 Your popup content here. Can include text, images, forms, and even other shortcodes.
-[/kntnt-popup]
+[/popup]
 ```
 
 ### Available Parameters:
@@ -57,6 +57,11 @@ Your popup content here. Can include text, images, forms, and even other shortco
 | `padding` | Any valid CSS length | `clamp(20px, calc(5.2vw - 20px), 160px)` | Sets popup padding |
 | `position` | `center`, `top`, `top-right`, `right`, `bottom-right`, `bottom`, `bottom-left`, `left`, `top-left` | `center` | Determines popup position |
 | `class` | CSS class name(s) | None | Adds custom CSS classes to popup element |
+| `style-popup` | CSS string | None | Inline CSS for popup container |
+| `style-overlay` | CSS string | None | Inline CSS for overlay element |
+| `style-dialog` | CSS string | None | Inline CSS for dialog element |
+| `aria-label-popup` | String | `"Popup"` | Sets ARIA label for popup element |
+| `aria-label-close` | String | `"Close popup"` | Sets ARIA label for close button |
 
 #### User Experience:
 | Parameter | Values | Default | Description |
@@ -75,26 +80,26 @@ Your popup content here. Can include text, images, forms, and even other shortco
 
 Show a popup after 5 seconds with a close button:
 ```
-[kntnt-popup show-after-time="5" close-button]
+[popup show-after-time="5" close-button]
 <h2>Welcome to our site!</h2>
 <p>Check out our latest offers.</p>
-[/kntnt-popup]
+[/popup]
 ```
 
 Show a popup on exit intent with custom width and position:
 ```
-[kntnt-popup shown-on-exit-intent width="400px" position="top"]
+[popup shown-on-exit-intent width="400px" position="top"]
 <h2>Wait before you go!</h2>
 <p>Subscribe to our newsletter to get exclusive content.</p>
-[/kntnt-popup]
+[/popup]
 ```
 
 Show a popup after scrolling 50% with fade-in animation:
 ```
-[kntnt-popup show-after-scroll="50" open-animation="fade-in" close-outside-click]
+[popup show-after-scroll="50" open-animation="fade-in" close-outside-click]
 <h2>You're halfway there!</h2>
 <p>Want to learn more about our products?</p>
-[/kntnt-popup]
+[/popup]
 ```
 
 ### Developer Hooks
@@ -103,10 +108,10 @@ The plugin provides a few hooks for developers to customize the popup behavior:
 
 #### WordPress Filters:
 
-##### `kntnt_popup_shortcode_atts`
+##### `kntnt-popup-shortcode-atts`
 Modifies shortcode attributes before they're processed.
 ```php
-add_filter('kntnt_popup_shortcode_atts', function($attributes) {
+add_filter('kntnt-popup-shortcode-atts', function($attributes) {
     // Modify attributes based on conditions
     if (is_front_page()) {
         $attributes['show-after-time'] = '5';
@@ -115,10 +120,10 @@ add_filter('kntnt_popup_shortcode_atts', function($attributes) {
 });
 ```
 
-##### `kntnt_popup_content`
+##### `kntnt-popup-content`
 Filters the popup content before it's displayed.
 ```php
-add_filter('kntnt_popup_content', function($content, $popup_id) {
+add_filter('kntnt-popup-content', function($content, $popup_id) {
     // Personalize content for logged-in users
     if (is_user_logged_in()) {
         $user = wp_get_current_user();
@@ -128,10 +133,10 @@ add_filter('kntnt_popup_content', function($content, $popup_id) {
 }, 10, 2);
 ```
 
-##### `kntnt_popup_armed`
+##### `kntnt-popup-armed`
 Determines whether a popup should be shown at all.
 ```php
-add_filter('kntnt_popup_armed', function($armed) {
+add_filter('kntnt-popup-armed', function($armed) {
     // Disable popups for administrators
     if (current_user_can('administrator')) {
         return false;
@@ -144,6 +149,17 @@ add_filter('kntnt_popup_armed', function($armed) {
 });
 ```
 
+##### `kntnt-popup-shortcode`
+Filters the entire popup HTML output.
+```php
+add_filter('kntnt-popup-shortcode', function($output, $atts, $content) {
+    // Modify the final HTML
+    // For example, add tracking attributes
+    $output = str_replace('<div id="', '<div data-tracking="popup" id="', $output);
+    return $output;
+}, 10, 3);
+```
+
 #### JavaScript Events:
 
 Event listeners should be added before the popup is initialized:
@@ -152,10 +168,10 @@ Event listeners should be added before the popup is initialized:
 Triggered before a popup is opened.
 ```javascript
 document.addEventListener('kntnt_popup:before_open', function(event) {
-    // Pause videos when popup opens
-    document.querySelectorAll('video').forEach(function(video) {
-        video.pause();
-    });
+  // Pause videos when popup opens
+  document.querySelectorAll('video').forEach(function(video) {
+    video.pause();
+  });
 });
 ```
 
@@ -163,10 +179,10 @@ document.addEventListener('kntnt_popup:before_open', function(event) {
 Triggered after a popup is closed.
 ```javascript
 document.addEventListener('kntnt_popup:after_close', function(event) {
-    // Resume background content after popup closes
-    document.querySelectorAll('.background-video').forEach(function(video) {
-        video.play();
-    });
+  // Resume background content after popup closes
+  document.querySelectorAll('.background-video').forEach(function(video) {
+    video.play();
+  });
 });
 ```
 

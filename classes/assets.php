@@ -8,6 +8,7 @@ namespace Kntnt\Popup;
  */
 final class Assets {
 
+
 	private bool $assets_needed = false;
 
 	private array $popup_configs = [];
@@ -17,12 +18,12 @@ final class Assets {
 	 */
 	public function register_assets(): void {
 
-		wp_register_script( Plugin::slug() . '-micromodal', Plugin::plugin_dir() . '/js/micromodal.min.js', [], Plugin::version(), true );
-		wp_register_script( Plugin::slug() . '-script', Plugin::plugin_dir() . '/js/kntnt-popup.js', [ Plugin::slug() . '-micromodal' ], Plugin::version(), true );
+		wp_register_script( Plugin::slug() . '-micromodal', Plugin::plugin_url() . 'js/micromodal.min.js', [], Plugin::version(), true );
+		wp_register_script( Plugin::slug() . '-script', Plugin::plugin_url() . 'js/kntnt-popup.js', [ Plugin::slug() . '-micromodal' ], Plugin::version(), true );
 
 		wp_script_add_data( Plugin::slug() . '-script', 'defer', true );
 
-		wp_register_style( Plugin::slug() . '-style', Plugin::plugin_dir() . '/css/kntnt-popup.css', [], Plugin::version() );
+		wp_register_style( Plugin::slug() . '-style', Plugin::plugin_url() . 'css/kntnt-popup.css', [], Plugin::version() );
 
 	}
 
