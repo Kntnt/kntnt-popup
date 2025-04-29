@@ -29,14 +29,14 @@ Kntnt Popup is a lightweight, customizable WordPress plugin that provides an eas
 ## Usage
 The plugin provides a shortcode `[popup]...[/popup]` where the content between the opening and closing tags will be displayed in the popup. This content is processed normally, meaning you can include text, images, HTML, and even other shortcodes inside the popup.
 
-### Basic Usage:
+Basic usage:
 ```
 [popup show-after-time="5"]
 Your popup content here. Can include text, images, forms, and even other shortcodes.
 [/popup]
 ```
 
-### Parameters
+## Parameters
 
 The shortcode accepts various parameters to customize the popup's behavior and appearance. Parameters can be used in three different ways:
 
@@ -46,11 +46,11 @@ The shortcode accepts various parameters to customize the popup's behavior and a
 
 Some parameters accept different types of values, such as numbers, strings, or booleans.
 
-#### Trigger Parameters
+### Trigger Parameters
 
 These parameters control when and how the popup appears.
 
-##### shown-on-exit-intent
+#### `shown-on-exit-intent`
 
 Controls whether the popup shows when the user moves their cursor to leave the page.
 
@@ -65,7 +65,7 @@ Controls whether the popup shows when the user moves their cursor to leave the p
 * `[popup shown-on-exit-intent]`: Same as above since flag value is `true`
 * `[popup]`: Won't trigger popup when user attempts to leave the page since default value is `false`
 
-##### show-after-time
+#### `show-after-time`
 
 Controls whether the popup shows after a specified number of seconds.
 
@@ -80,7 +80,7 @@ Controls whether the popup shows after a specified number of seconds.
 * `[popup show-after-time]`: Triggers popup after 30 seconds (flag value)
 * `[popup]`: Won't trigger popup based on time since default value is `false`
 
-##### show-after-scroll
+#### `show-after-scroll`
 
 Controls whether the popup shows after the user has scrolled a certain percentage of the page.
 
@@ -95,9 +95,9 @@ Controls whether the popup shows after the user has scrolled a certain percentag
 * `[popup show-after-scroll]`: Triggers popup after scrolling 80% of the page (flag value)
 * `[popup]`: Won't trigger popup based on scrolling since default value is `false`
 
-#### Identification and Styling Parameters
+### Identification and Styling Parameters
 
-##### id
+#### `id`
 
 Sets a custom ID attribute for the popup's wrapper div.
 
@@ -111,7 +111,7 @@ Sets a custom ID attribute for the popup's wrapper div.
 * `[popup id="newsletter-popup"]`: Sets the popup ID to "newsletter-popup"
 * `[popup]`: Assigns an automatically generated ID
 
-##### class
+#### `class`
 
 Adds custom CSS classes to the popup element.
 
@@ -125,7 +125,7 @@ Adds custom CSS classes to the popup element.
 * `[popup class="custom-theme large-popup"]`: Adds "custom-theme" and "large-popup" classes
 * `[popup]`: No additional CSS classes
 
-##### style-popup
+#### `style-popup`
 
 Adds inline CSS for the popup container.
 
@@ -139,7 +139,7 @@ Adds inline CSS for the popup container.
 * `[popup style-popup="background-color: #f5f5f5; border-radius: 10px;"]`: Adds inline styles
 * `[popup]`: No additional inline styles for the popup container
 
-##### style-overlay
+#### `style-overlay`
 
 Adds inline CSS for the overlay element.
 
@@ -153,7 +153,7 @@ Adds inline CSS for the overlay element.
 * `[popup style-overlay="backdrop-filter: blur(5px);"]`: Adds a blur effect to the overlay
 * `[popup]`: No additional inline styles for the overlay
 
-##### style-dialog
+#### `style-dialog`
 
 Adds inline CSS for the dialog element.
 
@@ -167,9 +167,9 @@ Adds inline CSS for the dialog element.
 * `[popup style-dialog="box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);"]`: Adds shadow
 * `[popup]`: No additional inline styles for the dialog
 
-#### Layout and Positioning Parameters
+### Layout and Positioning Parameters
 
-##### position
+#### `position`
 
 Determines the popup position on the screen.
 
@@ -186,7 +186,7 @@ Determines the popup position on the screen.
 
 Valid position values: `center`, `top`, `top-right`, `right`, `bottom-right`, `bottom`, `bottom-left`, `left`, `top-left`
 
-##### width
+#### `width`
 
 Sets the desired width of the popup.
 
@@ -201,7 +201,7 @@ Sets the desired width of the popup.
 * `[popup width="50%"]`: Sets popup width to 50% of viewport width
 * `[popup]`: Uses the default responsive width
 
-##### max-height
+#### `max-height`
 
 Sets the maximum height of the popup before scrolling is activated.
 
@@ -216,7 +216,7 @@ Sets the maximum height of the popup before scrolling is activated.
 * `[popup max-height="600px"]`: Sets maximum height to 600 pixels
 * `[popup]`: Uses the default maximum height (95% of viewport)
 
-##### padding
+#### `padding`
 
 Sets the internal padding of the popup.
 
@@ -231,7 +231,7 @@ Sets the internal padding of the popup.
 * `[popup padding="20px 40px"]`: Sets vertical padding to 20px and horizontal to 40px
 * `[popup]`: Uses the default responsive padding
 
-##### overlay-color
+#### `overlay-color`
 
 Sets the color of the overlay behind the popup.
 
@@ -246,9 +246,9 @@ Sets the color of the overlay behind the popup.
 * `[popup overlay-color="#000000cc"]`: Sets a semi-transparent black overlay
 * `[popup]`: Uses the default semi-transparent black overlay
 
-#### Interaction Parameters
+### Interaction Parameters
 
-##### close-button
+#### `close-button`
 
 Displays a close button with the specified character.
 
@@ -263,7 +263,7 @@ Displays a close button with the specified character.
 * `[popup close-button]`: Shows a close button with the default ✖ character
 * `[popup]`: No close button is displayed
 
-##### close-outside-click
+#### `close-outside-click`
 
 Determines whether clicking outside the popup area closes it.
 
@@ -278,7 +278,7 @@ Determines whether clicking outside the popup area closes it.
 * `[popup close-outside-click]`: Same as above (using flag value)
 * `[popup]`: Clicking outside doesn't close the popup
 
-##### modal
+#### `modal`
 
 Makes the popup modal (focus trapped, background scrolling prevented).
 
@@ -293,7 +293,7 @@ Makes the popup modal (focus trapped, background scrolling prevented).
 * `[popup modal]`: Same as above (using flag value)
 * `[popup]`: Creates a non-modal popup (background can still be scrolled)
 
-##### reappear-delay
+#### `reappear-delay`
 
 Controls how long before the popup can appear again after being closed.
 
@@ -315,9 +315,9 @@ Time values can use these units:
 - `h`: hours (e.g., `2h`)
 - `d`: days (e.g., `1d`)
 
-#### Animation Parameters
+### Animation Parameters
 
-##### open-animation
+#### `open-animation`
 
 Sets the animation used when the popup appears.
 
@@ -335,7 +335,7 @@ Sets the animation used when the popup appears.
 
 Valid open animation names: `tada`, `fade-in`, `fade-in-top`, `fade-in-right`, `fade-in-bottom`, `fade-in-left`, `slide-in-top`, `slide-in-right`, `slide-in-bottom`, `slide-in-left`
 
-##### close-animation
+#### `close-animation`
 
 Sets the animation used when the popup closes.
 
@@ -353,7 +353,7 @@ Sets the animation used when the popup closes.
 
 Valid close animation names: `fade-out`, `fade-out-top`, `fade-out-right`, `fade-out-bottom`, `fade-out-left`, `slide-out-top`, `slide-out-right`, `slide-out-bottom`, `slide-out-left`
 
-##### open-animation-duration
+#### `open-animation-duration`
 
 Overrides the default duration of the open animation.
 
@@ -367,7 +367,7 @@ Overrides the default duration of the open animation.
 * `[popup open-animation="fade-in" open-animation-duration="500"]`: Fade in animation lasts 500ms
 * `[popup open-animation="slide-in-top"]`: Uses the default duration for slide-in-top
 
-##### close-animation-duration
+#### `close-animation-duration`
 
 Overrides the default duration of the close animation.
 
@@ -381,9 +381,9 @@ Overrides the default duration of the close animation.
 * `[popup close-animation="fade-out" close-animation-duration="300"]`: Fade out animation lasts 300ms
 * `[popup close-animation="slide-out-bottom"]`: Uses the default duration for slide-out-bottom
 
-#### Accessibility Parameters
+### Accessibility Parameters
 
-##### aria-label-popup
+#### `aria-label-popup`
 
 Sets the ARIA label for the popup element.
 
@@ -397,7 +397,7 @@ Sets the ARIA label for the popup element.
 * `[popup aria-label-popup="Newsletter Signup"]`: Sets a custom ARIA label
 * `[popup]`: Uses the default "Popup" label (translated if available)
 
-##### aria-label-close
+#### aria-label-close
 
 Sets the ARIA label for the close button.
 
@@ -462,13 +462,13 @@ Show a popup containing a contact form (using Contact Form 7 shortcode as an exa
 [/popup]
 ```
 
-### Developer Hooks
+## Developer Hooks
 
 The plugin provides a few hooks for developers to customize the popup behavior:
 
-#### WordPress Filters:
+### WordPress Filters:
 
-##### `kntnt-popup-shortcode-atts`
+#### `kntnt-popup-shortcode-atts`
 Modifies shortcode attributes before they're processed.
 ```php
 add_filter('kntnt-popup-shortcode-atts', function($attributes) {
@@ -480,7 +480,7 @@ add_filter('kntnt-popup-shortcode-atts', function($attributes) {
 });
 ```
 
-##### `kntnt-popup-content`
+#### `kntnt-popup-content`
 Filters the popup content before it's displayed.
 ```php
 add_filter('kntnt-popup-content', function($content, $popup_id) {
@@ -493,7 +493,7 @@ add_filter('kntnt-popup-content', function($content, $popup_id) {
 }, 10, 2);
 ```
 
-##### `kntnt-popup-armed`
+#### `kntnt-popup-armed`
 Determines whether a popup should be shown at all.
 ```php
 add_filter('kntnt-popup-armed', function($armed) {
@@ -509,7 +509,7 @@ add_filter('kntnt-popup-armed', function($armed) {
 });
 ```
 
-##### `kntnt-popup-shortcode`
+#### `kntnt-popup-shortcode`
 Filters the entire popup HTML output.
 ```php
 add_filter('kntnt-popup-shortcode', function($output, $atts, $content) {
@@ -520,11 +520,11 @@ add_filter('kntnt-popup-shortcode', function($output, $atts, $content) {
 }, 10, 3);
 ```
 
-#### JavaScript Events:
+### JavaScript Events:
 
 Event listeners should be added before the popup is initialized:
 
-##### `kntnt_popup:before_open`
+#### `kntnt_popup:before_open`
 Triggered before a popup is opened.
 ```javascript
 document.addEventListener('kntnt_popup:before_open', function(event) {
@@ -535,7 +535,7 @@ document.addEventListener('kntnt_popup:before_open', function(event) {
 });
 ```
 
-##### `kntnt_popup:after_close`
+#### `kntnt_popup:after_close`
 Triggered after a popup is closed.
 ```javascript
 document.addEventListener('kntnt_popup:after_close', function(event) {
