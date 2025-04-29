@@ -36,48 +36,398 @@ Your popup content here. Can include text, images, forms, and even other shortco
 [/popup]
 ```
 
-### Available Parameters:
+### Parameters
 
-#### Trigger Parameters:
-| Parameter | Values | Default | Description |
-|-----------|--------|---------|-------------|
-| `shown-on-exit-intent` | `true`, `false` | `false` (if omitted)<br>`true` (if no value) | Shows popup when user moves cursor to leave page |
-| `show-after-time` | Number of seconds or `false` | `false` (if omitted)<br>`30` (if no value) | Shows popup after specified number of seconds |
-| `show-after-scroll` | Percentage or `false` | `false` (if omitted)<br>`80` (if no value) | Shows popup when user has scrolled the specified percentage of page |
+The shortcode accepts various parameters to customize the popup's behavior and appearance. Parameters can be used in three different ways:
 
-#### Appearance and Behavior:
-| Parameter | Values | Default | Description |
-|-----------|--------|---------|-------------|
-| `id` | Any valid ID string or `false` | `false` | Sets the ID attribute for popup's wrapper div |
-| `close-button` | Character to use or `false` | `false` (if omitted)<br>`✖` (if no value) | Displays a close button with specified character |
-| `close-outside-click` | `true`, `false` | `false` (if omitted)<br>`true` (if no value) | Closes popup when clicking outside popup area |
-| `modal` | `true`, `false` | `false` (if omitted)<br>`true` (if no value) | Makes popup modal (focus trapped, scrolling prevented) |
-| `overlay-color` | Any valid CSS color | `rgba(0,0,0,80%)` | Sets color of overlay behind popup |
-| `width` | Any valid CSS length | `clamp(300px, 90vw, 800px)` | Sets desired popup width |
-| `max-height` | Any valid CSS length | `95vh` | Sets maximum popup height before scrolling activates |
-| `padding` | Any valid CSS length | `clamp(20px, calc(5.2vw - 20px), 160px)` | Sets popup padding |
-| `position` | `center`, `top`, `top-right`, `right`, `bottom-right`, `bottom`, `bottom-left`, `left`, `top-left` | `center` | Determines popup position |
-| `class` | CSS class name(s) | None | Adds custom CSS classes to popup element |
-| `style-popup` | CSS string | None | Inline CSS for popup container |
-| `style-overlay` | CSS string | None | Inline CSS for overlay element |
-| `style-dialog` | CSS string | None | Inline CSS for dialog element |
-| `aria-label-popup` | String | `"Popup"` | Sets ARIA label for popup element |
-| `aria-label-close` | String | `"Close popup"` | Sets ARIA label for close button |
+* **Assignment:** The parameter name followed by an equals sign and a value within quotation marks. Example: `show-after-time="15"` sets the parameter to show after 15 seconds.
+* **Flag:** The parameter name alone, which sets the parameter to a predefined value called the *flag value*. Example: `show-after-time` is equivalent to `show-after-time="30"`.
+* **Omitted:** If the parameter is not included at all, a *default value* is used. Example: If `show-after-time` is omitted, it's equivalent to `show-after-time="false"`.
 
-#### User Experience:
-| Parameter | Values | Default | Description |
-|-----------|--------|---------|-------------|
-| `reappear-delay` | Number with optional prefix:<br>- No prefix or `s`: seconds<br>- `m`: minutes<br>- `h`: hours<br>- `d`: days | `0` (if omitted)<br>`1d` (if no value) | Time before popup can appear again after being closed |
+Some parameters accept different types of values, such as numbers, strings, or booleans.
 
-#### Animation Parameters:
-| Parameter | Values | Default | Description |
-|-----------|--------|---------|-------------|
-| `open-animation` | `false`, `tada`, `fade-in`, `fade-in-top`, `fade-in-right`, `fade-in-bottom`, `fade-in-left`, `slide-in-top`, `slide-in-right`, `slide-in-bottom`, `slide-in-left` | `false` (if omitted)<br>`tada` (if no value) | Animation when popup appears |
-| `close-animation` | `false`, `fade-out`, `fade-out-top`, `fade-out-right`, `fade-out-bottom`, `fade-out-left`, `slide-out-top`, `slide-out-right`, `slide-out-bottom`, `slide-out-left` | `false` (if omitted)<br>`fade-out` (if no value) | Animation when popup closes |
-| `open-animation-duration` | Time in milliseconds | Animation's default duration | Overrides default open animation duration |
-| `close-animation-duration` | Time in milliseconds | Animation's default duration | Overrides default close animation duration |
+#### Trigger Parameters
 
-### Examples:
+These parameters control when and how the popup appears.
+
+##### shown-on-exit-intent
+
+Controls whether the popup shows when the user moves their cursor to leave the page.
+
+*Format:* `shown-on-exit-intent=<true|false>`
+
+*Flag value:* `true`
+
+*Default value:* `false`
+
+*Examples:*
+* `[popup shown-on-exit-intent="true"]`: Triggers popup when user attempts to leave the page
+* `[popup shown-on-exit-intent]`: Same as above since flag value is `true`
+* `[popup]`: Won't trigger popup when user attempts to leave the page since default value is `false`
+
+##### show-after-time
+
+Controls whether the popup shows after a specified number of seconds.
+
+*Format:* `show-after-time=<seconds|false>`
+
+*Flag value:* `30` (seconds)
+
+*Default value:* `false`
+
+*Examples:*
+* `[popup show-after-time="5"]`: Triggers popup after 5 seconds
+* `[popup show-after-time]`: Triggers popup after 30 seconds (flag value)
+* `[popup]`: Won't trigger popup based on time since default value is `false`
+
+##### show-after-scroll
+
+Controls whether the popup shows after the user has scrolled a certain percentage of the page.
+
+*Format:* `show-after-scroll=<percentage|false>`
+
+*Flag value:* `80` (percent)
+
+*Default value:* `false`
+
+*Examples:*
+* `[popup show-after-scroll="50"]`: Triggers popup after scrolling 50% of the page
+* `[popup show-after-scroll]`: Triggers popup after scrolling 80% of the page (flag value)
+* `[popup]`: Won't trigger popup based on scrolling since default value is `false`
+
+#### Identification and Styling Parameters
+
+##### id
+
+Sets a custom ID attribute for the popup's wrapper div.
+
+*Format:* `id=<string|false>`
+
+*Flag value:* None (must provide a value)
+
+*Default value:* Automatically generated ID
+
+*Examples:*
+* `[popup id="newsletter-popup"]`: Sets the popup ID to "newsletter-popup"
+* `[popup]`: Assigns an automatically generated ID
+
+##### class
+
+Adds custom CSS classes to the popup element.
+
+*Format:* `class=<string>`
+
+*Flag value:* None (must provide a value)
+
+*Default value:* None (no additional classes)
+
+*Examples:*
+* `[popup class="custom-theme large-popup"]`: Adds "custom-theme" and "large-popup" classes
+* `[popup]`: No additional CSS classes
+
+##### style-popup
+
+Adds inline CSS for the popup container.
+
+*Format:* `style-popup=<css-string>`
+
+*Flag value:* None (must provide a value)
+
+*Default value:* None (no inline styles)
+
+*Examples:*
+* `[popup style-popup="background-color: #f5f5f5; border-radius: 10px;"]`: Adds inline styles
+* `[popup]`: No additional inline styles for the popup container
+
+##### style-overlay
+
+Adds inline CSS for the overlay element.
+
+*Format:* `style-overlay=<css-string>`
+
+*Flag value:* None (must provide a value)
+
+*Default value:* None (no inline styles)
+
+*Examples:*
+* `[popup style-overlay="backdrop-filter: blur(5px);"]`: Adds a blur effect to the overlay
+* `[popup]`: No additional inline styles for the overlay
+
+##### style-dialog
+
+Adds inline CSS for the dialog element.
+
+*Format:* `style-dialog=<css-string>`
+
+*Flag value:* None (must provide a value)
+
+*Default value:* None (no inline styles)
+
+*Examples:*
+* `[popup style-dialog="box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);"]`: Adds shadow
+* `[popup]`: No additional inline styles for the dialog
+
+#### Layout and Positioning Parameters
+
+##### position
+
+Determines the popup position on the screen.
+
+*Format:* `position=<position-value>`
+
+*Flag value:* None (must provide a value)
+
+*Default value:* `center`
+
+*Examples:*
+* `[popup position="top"]`: Positions the popup at the top center
+* `[popup position="bottom-right"]`: Positions the popup at the bottom right
+* `[popup]`: Centers the popup (default position)
+
+Valid position values: `center`, `top`, `top-right`, `right`, `bottom-right`, `bottom`, `bottom-left`, `left`, `top-left`
+
+##### width
+
+Sets the desired width of the popup.
+
+*Format:* `width=<css-length>`
+
+*Flag value:* None (must provide a value)
+
+*Default value:* `clamp(300px, 90vw, 800px)`
+
+*Examples:*
+* `[popup width="500px"]`: Sets popup width to 500 pixels
+* `[popup width="50%"]`: Sets popup width to 50% of viewport width
+* `[popup]`: Uses the default responsive width
+
+##### max-height
+
+Sets the maximum height of the popup before scrolling is activated.
+
+*Format:* `max-height=<css-length>`
+
+*Flag value:* None (must provide a value)
+
+*Default value:* `95vh`
+
+*Examples:*
+* `[popup max-height="80vh"]`: Sets maximum height to 80% of viewport height
+* `[popup max-height="600px"]`: Sets maximum height to 600 pixels
+* `[popup]`: Uses the default maximum height (95% of viewport)
+
+##### padding
+
+Sets the internal padding of the popup.
+
+*Format:* `padding=<css-length>`
+
+*Flag value:* None (must provide a value)
+
+*Default value:* `clamp(20px, calc(5.2vw - 20px), 160px)`
+
+*Examples:*
+* `[popup padding="30px"]`: Sets padding to 30 pixels on all sides
+* `[popup padding="20px 40px"]`: Sets vertical padding to 20px and horizontal to 40px
+* `[popup]`: Uses the default responsive padding
+
+##### overlay-color
+
+Sets the color of the overlay behind the popup.
+
+*Format:* `overlay-color=<css-color>`
+
+*Flag value:* None (must provide a value)
+
+*Default value:* `rgba(0,0,0,80%)`
+
+*Examples:*
+* `[popup overlay-color="rgba(0,0,50,70%)"]`: Sets a semi-transparent dark blue overlay
+* `[popup overlay-color="#000000cc"]`: Sets a semi-transparent black overlay
+* `[popup]`: Uses the default semi-transparent black overlay
+
+#### Interaction Parameters
+
+##### close-button
+
+Displays a close button with the specified character.
+
+*Format:* `close-button=<character|false>`
+
+*Flag value:* `✖`
+
+*Default value:* `false`
+
+*Examples:*
+* `[popup close-button="×"]`: Shows a close button with the × character
+* `[popup close-button]`: Shows a close button with the default ✖ character
+* `[popup]`: No close button is displayed
+
+##### close-outside-click
+
+Determines whether clicking outside the popup area closes it.
+
+*Format:* `close-outside-click=<true|false>`
+
+*Flag value:* `true`
+
+*Default value:* `false`
+
+*Examples:*
+* `[popup close-outside-click="true"]`: Clicking outside the popup closes it
+* `[popup close-outside-click]`: Same as above (using flag value)
+* `[popup]`: Clicking outside doesn't close the popup
+
+##### modal
+
+Makes the popup modal (focus trapped, background scrolling prevented).
+
+*Format:* `modal=<true|false>`
+
+*Flag value:* `true`
+
+*Default value:* `false`
+
+*Examples:*
+* `[popup modal="true"]`: Creates a modal popup (background scroll locked)
+* `[popup modal]`: Same as above (using flag value)
+* `[popup]`: Creates a non-modal popup (background can still be scrolled)
+
+##### reappear-delay
+
+Controls how long before the popup can appear again after being closed.
+
+*Format:* `reappear-delay=<time-value>`
+
+*Flag value:* `1d` (1 day)
+
+*Default value:* `0` (no delay)
+
+*Examples:*
+* `[popup reappear-delay="4h"]`: Popup won't reappear for 4 hours after being closed
+* `[popup reappear-delay="30s"]`: Popup won't reappear for 30 seconds after being closed
+* `[popup reappear-delay]`: Popup won't reappear for 1 day after being closed (flag value)
+* `[popup]`: Popup can reappear immediately after being closed
+
+Time values can use these units:
+- No unit or `s`: seconds (e.g., `30` or `30s`)
+- `m`: minutes (e.g., `5m`)
+- `h`: hours (e.g., `2h`)
+- `d`: days (e.g., `1d`)
+
+#### Animation Parameters
+
+##### open-animation
+
+Sets the animation used when the popup appears.
+
+*Format:* `open-animation=<animation-name|false>`
+
+*Flag value:* `tada`
+
+*Default value:* `false` (no animation)
+
+*Examples:*
+* `[popup open-animation="fade-in"]`: Popup fades in when appearing
+* `[popup open-animation="slide-in-top"]`: Popup slides in from the top
+* `[popup open-animation]`: Uses the tada animation (flag value)
+* `[popup]`: No animation when popup appears
+
+Valid open animation names: `tada`, `fade-in`, `fade-in-top`, `fade-in-right`, `fade-in-bottom`, `fade-in-left`, `slide-in-top`, `slide-in-right`, `slide-in-bottom`, `slide-in-left`
+
+##### close-animation
+
+Sets the animation used when the popup closes.
+
+*Format:* `close-animation=<animation-name|false>`
+
+*Flag value:* `fade-out`
+
+*Default value:* `false` (no animation)
+
+*Examples:*
+* `[popup close-animation="fade-out-top"]`: Popup fades out toward the top when closing
+* `[popup close-animation="slide-out-bottom"]`: Popup slides out to the bottom
+* `[popup close-animation]`: Popup fades out (flag value)
+* `[popup]`: No animation when popup closes
+
+Valid close animation names: `fade-out`, `fade-out-top`, `fade-out-right`, `fade-out-bottom`, `fade-out-left`, `slide-out-top`, `slide-out-right`, `slide-out-bottom`, `slide-out-left`
+
+##### open-animation-duration
+
+Overrides the default duration of the open animation.
+
+*Format:* `open-animation-duration=<milliseconds|false>`
+
+*Flag value:* None (must provide a value)
+
+*Default value:* Animation's default duration
+
+*Examples:*
+* `[popup open-animation="fade-in" open-animation-duration="500"]`: Fade in animation lasts 500ms
+* `[popup open-animation="slide-in-top"]`: Uses the default duration for slide-in-top
+
+##### close-animation-duration
+
+Overrides the default duration of the close animation.
+
+*Format:* `close-animation-duration=<milliseconds|false>`
+
+*Flag value:* None (must provide a value)
+
+*Default value:* Animation's default duration
+
+*Examples:*
+* `[popup close-animation="fade-out" close-animation-duration="300"]`: Fade out animation lasts 300ms
+* `[popup close-animation="slide-out-bottom"]`: Uses the default duration for slide-out-bottom
+
+#### Accessibility Parameters
+
+##### aria-label-popup
+
+Sets the ARIA label for the popup element.
+
+*Format:* `aria-label-popup=<string>`
+
+*Flag value:* None (must provide a value)
+
+*Default value:* `"Popup"` (localized)
+
+*Examples:*
+* `[popup aria-label-popup="Newsletter Signup"]`: Sets a custom ARIA label
+* `[popup]`: Uses the default "Popup" label (translated if available)
+
+##### aria-label-close
+
+Sets the ARIA label for the close button.
+
+*Format:* `aria-label-close=<string>`
+
+*Flag value:* None (must provide a value)
+
+*Default value:* `"Close popup"` (localized)
+
+*Examples:*
+* `[popup aria-label-close="Dismiss newsletter"]`: Sets a custom ARIA label for close button
+* `[popup]`: Uses the default "Close popup" label (translated if available)
+
+### Combining Parameters
+
+You can combine multiple parameters to create highly customized popups:
+
+```
+[popup shown-on-exit-intent show-after-time="15" show-after-scroll="60" 
+       position="center" width="600px" overlay-color="rgba(0,0,50,80%)"
+       close-button modal open-animation="fade-in" close-animation="fade-out"]
+<h2>Subscribe to Our Newsletter</h2>
+<p>Get the latest updates and special offers delivered directly to your inbox.</p>
+[contact-form-7 id="contact-form-12345" title="Newsletter Signup Form"]
+[/popup]
+```
+
+In this example, the popup will appear when the user tries to leave the page, OR after 15 seconds, OR after scrolling 60% of the page - whichever happens first. It will be centered with a width of 600px, have a dark blue overlay, display a close button, prevent background scrolling, and use fade animations.
+
+### Examples
 
 Show a popup after 5 seconds with a close button:
 ```
