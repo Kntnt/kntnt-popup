@@ -37,17 +37,17 @@
 
 .kntnt-popup__close-button {
   position: absolute;
-  top: calc(var(--kntnt-popup-padding) / 2); /* Position relative to padding */
-  right: calc(var(--kntnt-popup-padding) / 2);
+  top: 0;
+  right: 0;
   background: transparent;
   border: 0;
   padding: 0;
   cursor: pointer;
-  font-size: 1.5rem; /* Adjust size as needed */
+  font-size: 1.5rem;
   line-height: 1;
   color: #555;
-  min-width: 44px; /* Accessibility: Touch target size */
-  min-height: 44px; /* Accessibility: Touch target size */
+  min-width: 3rem; /* Accessibility: Touch target size */
+  min-height: 3rem; /* Accessibility: Touch target size */
   display: flex;
   justify-content: center;
   align-items: center;
