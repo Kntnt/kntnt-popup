@@ -111,12 +111,20 @@ final class Popup {
 			                                                'closeButton' => $atts['close-button'] !== false,
 			                                                'closeOutsideClick' => $atts['close-outside-click'],
 			                                                'reappearDelay' => $atts['reappear-delay'],
-			                                                'isModal' => $atts['modal'],
+			                                                'isModal' => $atts['modal'], // isModal is used here
 			                                                'openAnimation' => $atts['open-animation'],
 			                                                'closeAnimation' => $atts['close-animation'],
 			                                                'openAnimationDuration' => $atts['open-animation-duration'] !== false ? (int) $atts['open-animation-duration'] : false,
 			                                                'closeAnimationDuration' => $atts['close-animation-duration'] !== false ? (int) $atts['close-animation-duration'] : false,
 		                                                ] );
+
+		// Prepare wrapper class string
+		$wrapper_classes = [
+			'kntnt-popup',
+			esc_attr( $atts['class'] ),
+			$atts['modal'] ? 'kntnt-popup--modal' : '',
+		];
+		$atts['wrapper_class_string'] = trim( implode( ' ', array_filter( $wrapper_classes ) ) );
 
 		// Generate popup
 		$popup = $this->load_template( $content, $atts );
@@ -162,6 +170,9 @@ final class Popup {
 					$carry[ $new_key ] = $this->value_defaults[ $new_key ];
 				}
 				else {
+					// If not in value_defaults, treat as a generic true flag
+					// unless it's a known attribute that should default to false/other.
+					// For simplicity here, assume any unknown flag is true.
 					$carry[ $new_key ] = true;
 				}
 			}
@@ -192,7 +203,7 @@ final class Popup {
 	 * Sanitizes and validates parsed attributes.
 	 *
 	 * @param array $atts     Parsed attributes.
-	 * @param array $defaults Default attributes for fallback.
+	 * @param array $defaults Default attributes for fallback (only used for default logic, not for type check).
 	 *
 	 * @return array Sanitized and validated attributes.
 	 */
@@ -208,8 +219,8 @@ final class Popup {
 
 		// Sanitize and validate 'show-after-time'
 		if ( $atts['show-after-time'] !== false ) {
-			if ( is_int( $atts['show-after-time'] ) && $atts['show-after-time'] >= 0 ) {
-				$time = $atts['show-after-time'];
+			if ( is_numeric( $atts['show-after-time'] ) && $atts['show-after-time'] >= 0 ) {
+				$time = (int) $atts['show-after-time'];
 			}
 			else {
 				$time = filter_var( $atts['show-after-time'], FILTER_VALIDATE_INT, [ 'options' => [ 'min_range' => 0 ] ] );
@@ -222,13 +233,13 @@ final class Popup {
 
 		// Sanitize and validate 'show-after-scroll'
 		if ( $atts['show-after-scroll'] !== false ) {
-			if ( is_int( $atts['show-after-scroll'] ) && $atts['show-after-scroll'] >= 0 && $atts['show-after-scroll'] <= 100 ) {
-				$scroll = $atts['show-after-scroll'];
+			if ( is_numeric( $atts['show-after-scroll'] ) && $atts['show-after-scroll'] >= 0 && $atts['show-after-scroll'] <= 100 ) {
+				$scroll = (int) $atts['show-after-scroll'];
 			}
 			else {
 				$scroll = filter_var( $atts['show-after-scroll'], FILTER_VALIDATE_INT, [ 'options' => [ 'min_range' => 0, 'max_range' => 100 ] ] );
 			}
-			$validated['show-after-scroll'] = ( $scroll !== false && $scroll >= 0 && $scroll <= 100 ) ? $scroll : false;
+			$validated['show-after-scroll'] = ( $scroll !== false && $scroll >= 0 && $scroll <= 100 ) ? $scroll : false; // Use false if validation fails
 		}
 		else {
 			$validated['show-after-scroll'] = false;
@@ -241,34 +252,55 @@ final class Popup {
 		$validated['close-outside-click'] = filter_var( $atts['close-outside-click'], FILTER_VALIDATE_BOOLEAN );
 
 		// Sanitize and validate 'reappear-delay'
-		$validated['reappear-delay'] = $this->parse_time_string( (string) $atts['reappear-delay'], is_int( $defaults['reappear-delay'] ) ? (string) $defaults['reappear-delay'] : $defaults['reappear-delay'] );
+		// Pass the default from $this->omitted_defaults which is 0
+		$validated['reappear-delay'] = $this->parse_time_string( (string) $atts['reappear-delay'], (string) $this->omitted_defaults['reappear-delay'] );
+
 
 		// Sanitize and validate 'modal'
 		$validated['modal'] = filter_var( $atts['modal'], FILTER_VALIDATE_BOOLEAN );
 
 		// Sanitize and validate 'overlay-color'
-		$validated['overlay-color'] = $this->is_valid_css_color( $atts['overlay-color'] ) ? $atts['overlay-color'] : $defaults['overlay-color'];
+		$validated['overlay-color'] = safecss_filter_attr( 'color: ' . $atts['overlay-color'] );
+		$validated['overlay-color'] = str_replace( 'color: ', '', $validated['overlay-color'] );
+		if ( empty( $validated['overlay-color'] ) || ! $this->is_valid_css_color( $validated['overlay-color'] ) ) {
+			$validated['overlay-color'] = $this->omitted_defaults['overlay-color'];
+		}
 
-		// Sanitize and validate 'width'
-		$validated['width'] = $this->sanitize_css_length( $atts['width'], $defaults['width'] );
+		// Sanitize and validate 'width' using safecss_filter_attr
+		$validated['width'] = safecss_filter_attr( 'width: ' . $atts['width'] );
+		$validated['width'] = str_replace( 'width: ', '', $validated['width'] );
+		if ( empty( $validated['width'] ) ) { // Basic check if sanitization removed it
+			$validated['width'] = $this->omitted_defaults['width'];
+		}
 
-		// Sanitize and validate 'max-height'
-		$validated['max-height'] = $this->sanitize_css_length( $atts['max-height'], $defaults['max-height'] );
+		// Sanitize and validate 'max-height' using safecss_filter_attr
+		$validated['max-height'] = safecss_filter_attr( 'max-height: ' . $atts['max-height'] );
+		$validated['max-height'] = str_replace( 'max-height: ', '', $validated['max-height'] );
+		if ( empty( $validated['max-height'] ) ) {
+			$validated['max-height'] = $this->omitted_defaults['max-height'];
+		}
 
-		// Sanitize and validate 'padding'
-		$validated['padding'] = $this->sanitize_css_length( $atts['padding'], $defaults['padding'] );
+		// Sanitize and validate 'padding' using safecss_filter_attr
+		$validated['padding'] = safecss_filter_attr( 'padding: ' . $atts['padding'] );
+		$validated['padding'] = str_replace( 'padding: ', '', $validated['padding'] );
+		if ( empty( $validated['padding'] ) ) {
+			$validated['padding'] = $this->omitted_defaults['padding'];
+		}
 
 		// Sanitize and validate 'position'
 		$allowed_positions = [ 'center', 'top', 'top-right', 'right', 'bottom-right', 'bottom', 'bottom-left', 'left', 'top-left' ];
-		$validated['position'] = in_array( $atts['position'], $allowed_positions, true ) ? $atts['position'] : $defaults['position'];
+		$validated['position'] = in_array( $atts['position'], $allowed_positions, true ) ? $atts['position'] : $this->omitted_defaults['position'];
 
 		// Sanitize and validate 'open-animation'
 		$allowed_open_animations = [ false, 'tada', 'fade-in', 'fade-in-top', 'fade-in-right', 'fade-in-bottom', 'fade-in-left', 'slide-in-top', 'slide-in-right', 'slide-in-bottom', 'slide-in-left' ];
-		$validated['open-animation'] = in_array( $atts['open-animation'], $allowed_open_animations, true ) ? $atts['open-animation'] : $defaults['open-animation'];
+		// Ensure false is treated correctly if passed as string 'false'
+		$open_animation_att = is_string( $atts['open-animation'] ) && strtolower( $atts['open-animation'] ) === 'false' ? false : $atts['open-animation'];
+		$validated['open-animation'] = in_array( $open_animation_att, $allowed_open_animations, true ) ? $open_animation_att : $this->omitted_defaults['open-animation'];
 
 		// Sanitize and validate 'close-animation'
 		$allowed_close_animations = [ false, 'fade-out', 'fade-out-top', 'fade-out-right', 'fade-out-bottom', 'fade-out-left', 'slide-out-top', 'slide-out-right', 'slide-out-bottom', 'slide-out-left' ];
-		$validated['close-animation'] = in_array( $atts['close-animation'], $allowed_close_animations, true ) ? $atts['close-animation'] : $defaults['close-animation'];
+		$close_animation_att = is_string( $atts['close-animation'] ) && strtolower( $atts['close-animation'] ) === 'false' ? false : $atts['close-animation'];
+		$validated['close-animation'] = in_array( $close_animation_att, $allowed_close_animations, true ) ? $close_animation_att : $this->omitted_defaults['close-animation'];
 
 		// Sanitize and validate 'open-animation-duration'
 		if ( $atts['open-animation-duration'] !== false ) {
@@ -297,7 +329,7 @@ final class Popup {
 		// Sanitize and validate 'style-dialog'
 		$validated['style-dialog'] = safecss_filter_attr( $atts['style-dialog'] );
 
-		// Sanitize and validate 'style-close-button' - Added
+		// Sanitize and validate 'style-close-button'
 		$validated['style-close-button'] = safecss_filter_attr( $atts['style-close-button'] );
 
 		// Sanitize and validate 'style-content'
@@ -338,12 +370,12 @@ final class Popup {
 
 			$str = strtolower( trim( $str ) );
 			if ( is_numeric( $str ) ) {
-				$value = (int) $str;
+				$value = max( 0, (int) $str );
 				$unit = '';
 			}
 			else {
 				preg_match( '/^(\d+)([a-z]*)$/', $str, $matches );
-				$value = isset( $matches[1] ) ? (int) $matches[1] : 0;
+				$value = isset( $matches[1] ) ? max( 0, (int) $matches[1] ) : 0;
 				$unit = $matches[2] ?? '';
 			}
 
@@ -352,7 +384,7 @@ final class Popup {
 				return $value * $multipliers[ $unit ];
 			}
 
-			// Return 0 if unit is invalid
+			// Return 0 if unit is invalid or value was 0
 			return 0;
 
 		};
@@ -360,74 +392,45 @@ final class Popup {
 		// Parse the input time string
 		$seconds = $parse( $time_string );
 
-		// Fallback to default if parsing resulted in 0 or negative,
-		// unless the original input string was exactly '0'.
-		if ( $seconds <= 0 && trim( $time_string ) !== '0' ) {
+		// Fallback to default only if parsing resulted in 0 AND the original input string was not '0'
+		if ( $seconds === 0 && trim( $time_string ) !== '0' ) {
 			return $parse( $default_string );
 		}
 
-		return $seconds;
+		return $seconds; // Return parsed seconds (can be 0 if input was '0')
 
 	}
 
 	/**
-	 * Basic check for valid CSS color.
-	 * Allows hex, rgb, rgba, hsl, hsla, and named colors.
-	 * This is not exhaustive but covers common cases.
+	 * Checks if a CSS color value is considered safe by WordPress safecss_filter_attr.
 	 *
-	 * @param string $color
+	 * @param string $color The CSS color value to check.
 	 *
-	 * @return bool
+	 * @return bool True if the color value is likely safe, false otherwise.
 	 */
 	private function is_valid_css_color( string $color ): bool {
-		// Regex to match basic CSS color structures:
-		// - Keywords (very loose matching: all words with [a-z]+, e.g. 'red',
-		//   'transparent', but also 'void')
-		// - Hex codes (#rgb, #rgba, #rrggbb, #rrggbbaa)
-		// - Known function names (rgb, rgba, hsl, hsla, hwb, lab, lch, oklab, oklch,
-		//   ictcp, jzazbz, jzczhz, color, light-dark) followed by parentheses.
-		//   NOTE: Does NOT validate that the parameters inside the brackets of
-		//   the functions are correct according to the CSS specification, only that
-		//   the function name is known and that brackets exist around any content.
-		$pattern = '/^(?:[a-z]+|#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})\b|(?:rgb|rgba|hsl|hsla|hwb|lab|lch|oklab|oklch|ictcp|jzazbz|jzczhz|color|light-dark)\((?:[^()]|\([^()]*\))*\))$/i';
-		return (bool) preg_match( $pattern, trim( $color ) );
-	}
 
-	/**
-	 * Basic sanitization for CSS length/value strings.
-	 * Allows common units, calc(), clamp(), variables, etc.
-	 * Removes potentially harmful characters but is not a full CSS parser.
-	 *
-	 * @param string $length  The CSS value.
-	 * @param string $default The default value if sanitization fails badly.
-	 *
-	 * @return string Sanitized CSS value.
-	 */
-	private function sanitize_css_length( string $length, string $default ): string {
-
-		// Allow broader range of characters common in CSS values like calc(), clamp(), etc.
-		// Removes tags and dangerous attributes, but allows spaces, commas, operators.
-		$sanitized = wp_strip_all_tags( $length ); // Remove HTML/XML tags
-
-		// Basic check for potentially harmful CSS (very rudimentary)
-		if ( preg_match( '/(url\(|expression\(|javascript:)/i', $sanitized ) ) {
-			return $default; // Revert to default if suspicious patterns found
+		// Trim whitespace
+		$color = trim( $color );
+		if ( empty( $color ) ) {
+			return false; // Empty string is not a valid color
 		}
 
-		// Allow valid CSS units, numbers, functions like calc/clamp/var, percentages, etc.
-		// This pattern is permissive but aims to catch grossly invalid inputs.
-		// It allows numbers (int/float), common units, calc/min/max/clamp/var functions, percentages.
-		$pattern = '/^([+-]?\d*\.?\d+(%|[a-z]{2,4})?|\b(calc|min|max|clamp|var)\(.*\)|auto|inherit|initial|unset|revert|normal)(\s*[,+\-*/]\s*([+-]?\d*\.?\d+(%|[a-z]{2,4})?|\b(calc|min|max|clamp|var)\(.*\)|auto|inherit|initial|unset|revert|normal))*$/i';
+		// Sanitize using a dummy property
+		$sanitized_style = safecss_filter_attr( 'color: ' . $color );
 
-		if ( preg_match( $pattern, trim( $sanitized ) ) ) {
-			return trim( $sanitized ); // Return trimmed sanitized value if it looks plausible
+		// Check if the output still contains a non-empty value after "color: "
+		$expected_prefix = 'color:'; // Note: safecss_filter_attr adds a space after :
+		if ( str_starts_with( $sanitized_style, $expected_prefix ) ) {
+			$sanitized_value = trim( substr( $sanitized_style, strlen( $expected_prefix ) ) );
+			// If the sanitized value is not empty, assume safecss_filter_attr deemed it safe enough.
+			return ! empty( $sanitized_value );
 		}
 
-		// Fallback to default if validation fails
-		return $default;
+		// If safecss_filter_attr removed the 'color:' part or the value entirely, it's invalid.
+		return false;
 
 	}
-
 
 	/**
 	 * Loads the popup template file and returns its output as a string.
@@ -438,11 +441,11 @@ final class Popup {
 	 * @param array  $atts    The array of sanitized and validated shortcode attributes.
 	 *
 	 * @return string The HTML output generated by the template file. Returns an empty string on failure.
-	 * @throws \LogicException if templates/popup-template.php isn't readable (Note: This is implied by potential 'include' errors, not explicitly thrown in current code).
 	 */
 	private function load_template( string $content, array $atts ): string {
 		ob_start();
 		// Pass $atts and $content to the template scope
+		// Make sure $atts is available within the template file
 		include Plugin::plugin_dir() . 'templates/kntnt-popup-template.php';
 		$output = ob_get_clean();
 		return $output ?: ''; // Ensure a string is returned
