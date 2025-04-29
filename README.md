@@ -75,6 +75,8 @@ Controls whether the popup shows after a specified number of seconds.
 
 *Default value:* `false`
 
+*Note:* This parameter expects a numeric value without units, representing seconds.
+
 *Examples:*
 * `[popup show-after-time="5"]`: Triggers popup after 5 seconds
 * `[popup show-after-time]`: Triggers popup after 30 seconds (flag value)
@@ -89,6 +91,8 @@ Controls whether the popup shows after the user has scrolled a certain percentag
 *Flag value:* `80` (percent)
 
 *Default value:* `false`
+
+*Note:* This parameter expects a numeric value without units, representing percentage (0-100).
 
 *Examples:*
 * `[popup show-after-scroll="50"]`: Triggers popup after scrolling 50% of the page
@@ -318,6 +322,8 @@ Controls how long before the popup can appear again after being closed.
 
 *Default value:* `0` (no delay)
 
+*Note:* This parameter is converted to seconds internally. For example, "30s" becomes 30 seconds, "2h" becomes 7,200 seconds, etc.
+
 *Examples:*
 * `[popup reappear-delay="4h"]`: Popup won't reappear for 4 hours after being closed
 * `[popup reappear-delay="30s"]`: Popup won't reappear for 30 seconds after being closed
@@ -378,6 +384,8 @@ Overrides the default duration of the open animation.
 
 *Default value:* Animation's default duration
 
+*Note:* This parameter expects a numeric value representing milliseconds.
+
 *Examples:*
 * `[popup open-animation="fade-in" open-animation-duration="500"]`: Fade in animation lasts 500ms
 * `[popup open-animation="slide-in-top"]`: Uses the default duration for slide-in-top
@@ -391,6 +399,8 @@ Overrides the default duration of the close animation.
 *Flag value:* None (must provide a value)
 
 *Default value:* Animation's default duration
+
+*Note:* This parameter expects a numeric value representing milliseconds.
 
 *Examples:*
 * `[popup close-animation="fade-out" close-animation-duration="300"]`: Fade out animation lasts 300ms
@@ -406,7 +416,7 @@ Sets the ARIA label for the popup element.
 
 *Flag value:* None (must provide a value)
 
-*Default value:* `"Popup"` (localized)
+*Default value:* `"Popup"` (localized if translations are available)
 
 *Examples:*
 * `[popup aria-label-popup="Newsletter Signup"]`: Sets a custom ARIA label
@@ -420,7 +430,7 @@ Sets the ARIA label for the close button.
 
 *Flag value:* None (must provide a value)
 
-*Default value:* `"Close popup"` (localized)
+*Default value:* `"Close popup"` (localized if translations are available)
 
 *Examples:*
 * `[popup aria-label-close="Dismiss newsletter"]`: Sets a custom ARIA label for close button
