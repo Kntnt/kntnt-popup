@@ -17,6 +17,7 @@ Kntnt Popup is a lightweight, customizable WordPress plugin that provides an eas
 - Lightweight implementation using Micromodal.js
 - No additional JavaScript configuration required
 - Fully responsive design
+- Supports nested shortcodes within the popup content (e.g., forms, galleries)
 - Built with modern PHP and JavaScript practices
 
 ## Installation
@@ -26,7 +27,7 @@ Kntnt Popup is a lightweight, customizable WordPress plugin that provides an eas
 4. Activate the plugin.
 
 ## Usage
-The plugin provides a shortcode `[popup]...[/popup]` where the content between the opening and closing tags will be displayed in the popup.
+The plugin provides a shortcode `[popup]...[/popup]` where the content between the opening and closing tags will be displayed in the popup. This content is processed normally, meaning you can include text, images, HTML, and even other shortcodes inside the popup.
 
 ### Basic Usage:
 ```
@@ -99,6 +100,15 @@ Show a popup after scrolling 50% with fade-in animation:
 [popup show-after-scroll="50" open-animation="fade-in" close-outside-click]
 <h2>You're halfway there!</h2>
 <p>Want to learn more about our products?</p>
+[/popup]
+```
+
+Show a popup containing a contact form (using Contact Form 7 shortcode as an example):
+```
+[popup show-after-time="10" close-button position="center" width="600px"]
+<h2>Contact Us!</h2>
+<p>Have a question? Fill out the form below:</p>
+[contact-form-7 id="your-form-id" title="Popup Contact Form"]
 [/popup]
 ```
 
@@ -185,6 +195,71 @@ document.addEventListener('kntnt_popup:after_close', function(event) {
   });
 });
 ```
+
+## Building from Source (for Developers)
+
+If you have downloaded the plugin source code directly from GitHub, the necessary JavaScript file (`js/micromodal.min.js`) might not be included or might be outdated. This file is managed using Node.js and npm. Follow these steps to install dependencies and build the required JavaScript file:
+
+### 1. Install Node.js and npm
+
+You need Node.js installed on your system, which includes npm (Node Package Manager). If you don't have it installed, download and install the LTS (Long Term Support) version from the official website:
+
+* [https://nodejs.org/](https://nodejs.org/)
+
+You can verify the installation by opening your terminal or command prompt and running:
+
+```bash
+node -v
+npm -v
+```
+
+### 2. Install Project Dependencies
+
+Navigate to the plugin's root directory (`kntnt-popup/`) in your terminal and run the following command:
+
+```bash
+npm install
+```
+
+This command reads the package.json file and downloads the required development dependencies (like Micromodal.js) into a node_modules folder within the plugin directory.
+
+### 3. Build the JavaScript File
+
+After the dependencies are installed, run the build command defined in `package.json`:
+
+```bash
+npm run build
+```
+
+This command executes the build script, which typically copies the necessary JavaScript file (`micromodal.min.js`) from `node_modules` to the correct location within the plugin's `js/` directory.
+
+### 4. Updating Dependencies
+
+To check if there are newer versions of the dependencies (like Micromodal.js):
+
+```bash
+npm outdated
+```
+
+To update a specific dependency (e.g., micromodal) to the latest version allowed by package.json:
+
+```bash
+npm update micromodal
+```
+
+Or update all dependencies:
+
+```bash
+npm update
+```
+
+**Important:** After updating dependencies with npm update, you must run the build command again to copy the updated file(s) to the js/ directory:
+
+```bash
+npm run build
+```
+
+Now you have the necessary JavaScript file in place, and the plugin should function correctly.
 
 ## Questions & Answers
 

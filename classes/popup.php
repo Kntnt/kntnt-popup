@@ -107,6 +107,9 @@ final class Popup {
 		// Evaluate any shortcodes in content.
 		$content = do_shortcode( $content );
 
+		// Filters the final content of the popup before it is passed to the template.
+		$content = apply_filters( 'kntnt-popup-content', $content, $atts['id'], $atts );
+
 		// Load JavaScript and CSS on the page.
 		Plugin::instance()->assets()->mark_assets_needed();
 

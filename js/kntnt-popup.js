@@ -74,7 +74,7 @@
 
     MicroModal.show(popupId, {
       onShow: (modal) => {
-        const container = modal.querySelector('.kntnt-popup__dialog') // Updated selector based on template
+        const container = modal.querySelector('.kntnt-popup__dialog')
         if (!container) return
 
         if (config.openAnimation) {
@@ -90,7 +90,7 @@
         storeCloseTimestamp(popupId)
         dispatchCustomEvent('kntnt_popup:after_close', popupId)
 
-        const container = modal.querySelector('.kntnt-popup__dialog') // Updated selector based on template
+        const container = modal.querySelector('.kntnt-popup__dialog')
         if (!container) return
 
         if (config.closeAnimation) {
@@ -107,9 +107,9 @@
           container.style.removeProperty('--kntnt-popup-open-duration')
         }
       },
-      openTrigger: 'data-popup-open', // Changed as requested
-      closeTrigger: 'data-popup-close', // Changed as requested [cite: 267]
-      openClass: 'is-open', // Default, but explicit
+      openTrigger: 'data-popup-open',
+      closeTrigger: 'data-popup-close',
+      openClass: 'is-open',
       disableScroll: config.isModal,
       awaitOpenAnimation: !!config.openAnimation,
       awaitCloseAnimation: !!config.closeAnimation,
