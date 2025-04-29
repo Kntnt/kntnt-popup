@@ -26,6 +26,7 @@ final class Plugin {
 			self::$slug = strtr( strtolower( __NAMESPACE__ ), '_\\', '--' );
 			self::$plugin_dir = plugin_dir_path( $plugin_path );
 			self::$plugin_url = plugin_dir_url( $plugin_path );
+			// Prevent early translation attempt in get_plugin_data
 			self::$version = get_plugin_data( $plugin_path, true, false )['Version'];
 			self::$instance = new self;
 		}
@@ -59,9 +60,19 @@ final class Plugin {
 		$this->assets = new Assets;
 		$this->popup = new Popup;
 
+		// Register assets (runs during wp_enqueue_scripts by default priority 10)
 		add_action( 'wp_enqueue_scripts', [ $this->assets, 'register_assets' ] );
-		add_action( 'wp_footer', [ $this->assets, 'enqueue_assets_conditionally' ], 20 );
+
+		// Check for shortcode early (priority 15, before enqueueing)
+		add_action( 'wp_enqueue_scripts', [ $this->assets, 'check_for_shortcode' ], 15 );
+
+		// Conditionally enqueue assets (priority 20, after check)
+		add_action( 'wp_enqueue_scripts', [ $this->assets, 'enqueue_assets_conditionally' ], 20 );
+
+		// Register shortcode
 		add_action( 'init', [ $this->popup, 'register_shortcode' ] );
+
+		// Load textdomain during init
 		add_action( 'init', [ $this, 'load_textdomain' ] );
 
 	}
