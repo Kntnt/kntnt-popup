@@ -13,6 +13,7 @@ final class Popup {
 
 	/**
 	 * List of all shortcode attributes and their default values.
+	 * Attributes not present here will be treated as flags if used without a value.
 	 *
 	 * @var array
 	 */
@@ -23,7 +24,7 @@ final class Popup {
 		'show-after-scroll' => false,
 		'close-button' => false,
 		'close-outside-click' => false,
-		'reappear-delay' => '0',
+		'reappear-delay' => 0,
 		'modal' => false,
 		'overlay-color' => 'rgba(0,0,0,80%)',
 		'width' => 'clamp(300px, 90vw, 800px)',
@@ -38,6 +39,7 @@ final class Popup {
 		'style-popup' => '',
 		'style-overlay' => '',
 		'style-dialog' => '',
+		'style-close-button' => '',
 		'aria-label-popup' => 'Popup',       // Is localized in shortcode() if used
 		'aria-label-close' => 'Close popup', // Is localized in shortcode() if used
 	];
@@ -50,8 +52,8 @@ final class Popup {
 	 */
 	private array $value_defaults = [
 		'shown-on-exit-intent' => true,
-		'show-after-time' => '30',
-		'show-after-scroll' => '80',
+		'show-after-time' => 30,
+		'show-after-scroll' => 80,
 		'close-button' => '✖',
 		'close-outside-click' => true,
 		'reappear-delay' => '1d',
@@ -125,8 +127,8 @@ final class Popup {
 			                                                'isModal' => $atts['modal'],
 			                                                'openAnimation' => $atts['open-animation'],
 			                                                'closeAnimation' => $atts['close-animation'],
-			                                                'openAnimationDuration' => $atts['open-animation-duration'],
-			                                                'closeAnimationDuration' => $atts['close-animation-duration'],
+			                                                'openAnimationDuration' => $atts['open-animation-duration'] !== false ? (int) $atts['open-animation-duration'] : false,
+			                                                'closeAnimationDuration' => $atts['close-animation-duration'] !== false ? (int) $atts['close-animation-duration'] : false,
 		                                                ] );
 
 		// Generate popup
@@ -168,7 +170,13 @@ final class Popup {
 		$out = array_reduce( array_keys( $atts ), function ( $carry, $key ) use ( $atts ) {
 			if ( is_numeric( $key ) ) {
 				$new_key = $atts[ $key ];
-				$carry[ $new_key ] = $this->value_defaults[ $new_key ] ?? null;
+				// Ensure the flag exists in value_defaults before assigning
+				if ( isset( $this->value_defaults[ $new_key ] ) ) {
+					$carry[ $new_key ] = $this->value_defaults[ $new_key ];
+				}
+				else {
+					$carry[ $new_key ] = true;
+				}
 			}
 			else {
 				$carry[ $key ] = $atts[ $key ];
@@ -176,13 +184,14 @@ final class Popup {
 			return $carry;
 		},                   [] );
 
+		// Merge with omitted_defaults ensuring user-provided values take precedence
 		$out = $out + $this->omitted_defaults;
 
 		/**
 		 * Filters shortcode attributes.
 		 *
 		 * @param array  $out       The output array of shortcode attributes.
-		 * @param array  $pairs     The supported attributes and their defaults.
+		 * @param array  $pairs     The supported attributes and their defaults (omitted_defaults used here).
 		 * @param array  $atts      The user defined shortcode attributes.
 		 * @param string $shortcode The shortcode name.
 		 */
@@ -212,7 +221,12 @@ final class Popup {
 
 		// Sanitize and validate 'show-after-time'
 		if ( $atts['show-after-time'] !== false ) {
-			$time = filter_var( $atts['show-after-time'], FILTER_VALIDATE_INT, [ 'options' => [ 'min_range' => 0 ] ] );
+			if ( is_int( $atts['show-after-time'] ) && $atts['show-after-time'] >= 0 ) {
+				$time = $atts['show-after-time'];
+			}
+			else {
+				$time = filter_var( $atts['show-after-time'], FILTER_VALIDATE_INT, [ 'options' => [ 'min_range' => 0 ] ] );
+			}
 			$validated['show-after-time'] = ( $time !== false && $time >= 0 ) ? $time : false;
 		}
 		else {
@@ -221,7 +235,12 @@ final class Popup {
 
 		// Sanitize and validate 'show-after-scroll'
 		if ( $atts['show-after-scroll'] !== false ) {
-			$scroll = filter_var( $atts['show-after-scroll'], FILTER_VALIDATE_INT, [ 'options' => [ 'min_range' => 0, 'max_range' => 100 ] ] );
+			if ( is_int( $atts['show-after-scroll'] ) && $atts['show-after-scroll'] >= 0 && $atts['show-after-scroll'] <= 100 ) {
+				$scroll = $atts['show-after-scroll'];
+			}
+			else {
+				$scroll = filter_var( $atts['show-after-scroll'], FILTER_VALIDATE_INT, [ 'options' => [ 'min_range' => 0, 'max_range' => 100 ] ] );
+			}
 			$validated['show-after-scroll'] = ( $scroll !== false && $scroll >= 0 && $scroll <= 100 ) ? $scroll : false;
 		}
 		else {
@@ -235,7 +254,7 @@ final class Popup {
 		$validated['close-outside-click'] = filter_var( $atts['close-outside-click'], FILTER_VALIDATE_BOOLEAN );
 
 		// Sanitize and validate 'reappear-delay'
-		$validated['reappear-delay'] = $this->parse_time_string( (string) $atts['reappear-delay'], $defaults['reappear-delay'] );
+		$validated['reappear-delay'] = $this->parse_time_string( (string) $atts['reappear-delay'], is_int( $defaults['reappear-delay'] ) ? (string) $defaults['reappear-delay'] : $defaults['reappear-delay'] );
 
 		// Sanitize and validate 'modal'
 		$validated['modal'] = filter_var( $atts['modal'], FILTER_VALIDATE_BOOLEAN );
@@ -294,6 +313,9 @@ final class Popup {
 		// Sanitize and validate 'style-dialog'
 		$validated['style-dialog'] = safecss_filter_attr( $atts['style-dialog'] );
 
+		// Sanitize and validate 'style-close-button' - Added
+		$validated['style-close-button'] = safecss_filter_attr( $atts['style-close-button'] );
+
 		// Sanitize and validate 'aria-label-popup'
 		$validated['aria-label-popup'] = sanitize_text_field( $atts['aria-label-popup'] );
 
@@ -306,6 +328,7 @@ final class Popup {
 
 	/**
 	 * Parses a time string (e.g., "60s", "5m", "2h", "1d") into seconds.
+	 * Handles potential integer input for the base default.
 	 *
 	 * @param string $time_string    The time string.
 	 * @param string $default_string The default time string if parsing fails.
@@ -325,17 +348,34 @@ final class Popup {
 
 		// Local function to parse a time string and return seconds
 		$parse = function ( string $str ) use ( $multipliers ): int {
+
 			$str = strtolower( trim( $str ) );
-			$value = (int) $str;
-			$unit = preg_replace( '/^\d+/', '', $str );
-			return $value * ( $multipliers[ $unit ] ?? 0 );
+			if ( is_numeric( $str ) ) {
+				$value = (int) $str;
+				$unit = '';
+			}
+			else {
+				preg_match( '/^(\d+)([a-z]*)$/', $str, $matches );
+				$value = isset( $matches[1] ) ? (int) $matches[1] : 0;
+				$unit = $matches[2] ?? '';
+			}
+
+			// Validate unit and calculate seconds
+			if ( array_key_exists( $unit, $multipliers ) ) {
+				return $value * $multipliers[ $unit ];
+			}
+
+			// Return 0 if unit is invalid
+			return 0;
+
 		};
 
 		// Parse the input time string
 		$seconds = $parse( $time_string );
 
-		// Fallback to default if parsing resulted in 0 or negative, unless original string was '0'
-		if ( $seconds <= 0 && $time_string !== '0' ) {
+		// Fallback to default if parsing resulted in 0 or negative,
+		// unless the original input string was exactly '0'.
+		if ( $seconds <= 0 && trim( $time_string ) !== '0' ) {
 			return $parse( $default_string );
 		}
 
@@ -377,23 +417,30 @@ final class Popup {
 	 * @return string Sanitized CSS value.
 	 */
 	private function sanitize_css_length( string $length, string $default ): string {
-		// Regex to match common CSS length/value structures:
-		// - Numbers, both with and without units (e.g. '16px', '-1.5em',
-		//   '75%', '1.6', '0').
-		//   Covers integers, decimals, percentages, and common units like px,
-		//   em, rem, vw, vh, etc.
-		// - Known function names (calc, min, max, clamp, var) followed by
-		//   parentheses. NOTE: Does NOT validate the syntax or correctness of
-		//   the arguments inside the function parentheses
-		//   (e.g., 'calc(10px + )' might pass this check structurally, even
-		//   though it's invalid CSS). It only checks for the function name
-		//   and parentheses.
-		// - The check is case-insensitive (e.g., '10PX' or 'CALC(...)' are
-		//   accepted).
-		// This check is not exhaustive but covers many common valid formats.
-		$pattern = '/^(?:[+-]?\d*\.?\d+(?:[a-zA-Z%]+)?|(?:calc|min|max|clamp|var)\((?:[^()]|\([^()]*\))*\))$/i';
-		return preg_match( $pattern, $length ) ? $length : $default;
+
+		// Allow broader range of characters common in CSS values like calc(), clamp(), etc.
+		// Removes tags and dangerous attributes, but allows spaces, commas, operators.
+		$sanitized = wp_strip_all_tags( $length ); // Remove HTML/XML tags
+
+		// Basic check for potentially harmful CSS (very rudimentary)
+		if ( preg_match( '/(url\(|expression\(|javascript:)/i', $sanitized ) ) {
+			return $default; // Revert to default if suspicious patterns found
+		}
+
+		// Allow valid CSS units, numbers, functions like calc/clamp/var, percentages, etc.
+		// This pattern is permissive but aims to catch grossly invalid inputs.
+		// It allows numbers (int/float), common units, calc/min/max/clamp/var functions, percentages.
+		$pattern = '/^([+-]?\d*\.?\d+(%|[a-z]{2,4})?|\b(calc|min|max|clamp|var)\(.*\)|auto|inherit|initial|unset|revert|normal)(\s*[,+\-*/]\s*([+-]?\d*\.?\d+(%|[a-z]{2,4})?|\b(calc|min|max|clamp|var)\(.*\)|auto|inherit|initial|unset|revert|normal))*$/i';
+
+		if ( preg_match( $pattern, trim( $sanitized ) ) ) {
+			return trim( $sanitized ); // Return trimmed sanitized value if it looks plausible
+		}
+
+		// Fallback to default if validation fails
+		return $default;
+
 	}
+
 
 	/**
 	 * Loads the popup template file and returns its output as a string.
@@ -408,7 +455,9 @@ final class Popup {
 	 */
 	private function load_template( string $content, array $atts ): string {
 		ob_start();
+		// Pass $atts and $content to the template scope
 		include Plugin::plugin_dir() . 'templates/kntnt-popup-template.php';
-		return ob_get_clean() ?: '';
+		$output = ob_get_clean();
+		return $output ?: ''; // Ensure a string is returned
 	}
 }
