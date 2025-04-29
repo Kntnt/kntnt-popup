@@ -36,10 +36,10 @@ final class Popup {
 		'open-animation-duration' => false,
 		'close-animation-duration' => false,
 		'class' => '',
-		'style-popup' => '',
 		'style-overlay' => '',
 		'style-dialog' => '',
 		'style-close-button' => '',
+		'style-content' => '',
 		'aria-label-popup' => 'Popup',       // Is localized in shortcode() if used
 		'aria-label-close' => 'Close popup', // Is localized in shortcode() if used
 	];
@@ -84,19 +84,6 @@ final class Popup {
 
 		// Sanitize shortcode attributes
 		$atts = $this->sanitize_and_validate_attributes( $atts, $this->omitted_defaults );
-
-		// Add CSS properties to style
-		$properties = [
-			'--kntnt-popup-overlay-color' => esc_attr( $atts['overlay-color'] ),
-			'--kntnt-popup-width' => esc_attr( $atts['width'] ),
-			'--kntnt-popup-max-height' => esc_attr( $atts['max-height'] ),
-			'--kntnt-popup-padding' => esc_attr( $atts['padding'] ),
-		];
-		$style_declarations = [];
-		foreach ( $properties as $property => $value ) {
-			$style_declarations[] = "$property: $value";
-		}
-		$atts['style-popup'] = implode( '; ', $style_declarations ) . ';' . ( strlen( $atts['style-popup'] ) ? ' ' : '' ) . $atts['style-popup'];
 
 		// Translate ARIA labels
 		if ( $atts['aria-label-popup'] === $this->omitted_defaults['aria-label-popup'] ) {
@@ -304,9 +291,6 @@ final class Popup {
 		// Sanitize and validate 'class'
 		$validated['class'] = $atts['class'] ? implode( ' ', array_map( 'sanitize_html_class', explode( ' ', $atts['class'] ) ) ) : '';
 
-		// Sanitize and validate 'style-popup'
-		$validated['style-popup'] = safecss_filter_attr( $atts['style-popup'] );
-
 		// Sanitize and validate 'style-overlay'
 		$validated['style-overlay'] = safecss_filter_attr( $atts['style-overlay'] );
 
@@ -315,6 +299,9 @@ final class Popup {
 
 		// Sanitize and validate 'style-close-button' - Added
 		$validated['style-close-button'] = safecss_filter_attr( $atts['style-close-button'] );
+
+		// Sanitize and validate 'style-content'
+		$validated['style-content'] = safecss_filter_attr( $atts['style-content'] );
 
 		// Sanitize and validate 'aria-label-popup'
 		$validated['aria-label-popup'] = sanitize_text_field( $atts['aria-label-popup'] );

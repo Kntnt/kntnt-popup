@@ -1,16 +1,6 @@
 /* Kntnt Popup Base Styles & Micromodal Overrides */
 
-/* Apply CSS variables set via inline style on the main wrapper */
 .kntnt-popup {
-  --kntnt-popup-overlay-color: var(--kntnt-overlay-color, rgba(0, 0, 0, 0.8));
-  --kntnt-popup-width: var(--kntnt-width, clamp(300px, 90vw, 800px));
-  --kntnt-popup-max-height: var(--kntnt-max-height, 95vh);
-  --kntnt-popup-padding: var(--kntnt-padding, clamp(20px, calc(5.2vw - 20px), 160px));
-  --kntnt-popup-open-duration: 300ms; /* Default, override via JS/CSS */
-  --kntnt-popup-close-duration: 200ms; /* Default, override via JS/CSS */
-
-  /* outline: 1px solid red; Removed debugging artifact */
-
   display: none; /* Initially hidden */
   font-family: inherit;
   box-sizing: border-box;
@@ -27,7 +17,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--kntnt-popup-overlay-color);
+  /* Background color will be set inline */
   display: flex;
   justify-content: center; /* Default: center */
   align-items: center; /* Default: center */
@@ -37,9 +27,7 @@
 
 .kntnt-popup__dialog {
   background-color: #fff;
-  padding: var(--kntnt-popup-padding);
-  width: var(--kntnt-popup-width);
-  max-height: var(--kntnt-popup-max-height);
+  /* Width, max-height, and padding will be set inline */
   overflow-y: auto;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   border-radius: 4px;

@@ -129,20 +129,6 @@ Adds custom CSS classes to the popup element.
 * `[popup class="custom-theme large-popup"]`: Adds "custom-theme" and "large-popup" classes
 * `[popup]`: No additional CSS classes
 
-#### `style-popup`
-
-Adds inline CSS for the popup container.
-
-*Format:* `style-popup=<css-string>`
-
-*Flag value:* None (must provide a value)
-
-*Default value:* None (no inline styles)
-
-*Examples:*
-* `[popup style-popup="background-color: #f5f5f5; border-radius: 10px;"]`: Adds inline styles
-* `[popup]`: No additional inline styles for the popup container
-
 #### `style-overlay`
 
 Adds inline CSS for the overlay element.
@@ -186,6 +172,21 @@ Adds inline CSS for the close button element.
 * `[popup style-close-button="background-color: #333; border-radius: 50%; color: white;"]`: Creates a dark circular close button
 * `[popup]`: No additional inline styles for the close button
 
+#### `style-content`
+
+Adds inline CSS for the popup content area.
+
+*Format:* `style-content=<css-string>`
+
+*Flag value:* None (must provide a value)
+
+*Default value:* None (no inline styles)
+
+*Examples:*
+* `[popup style-content="color: #333; font-size: 16px;"]`: Styles text in the popup content
+* `[popup style-content="background-color: #f9f9f9; padding: 10px;"]`: Adds background and padding to content area
+* `[popup]`: No additional inline styles for the content area
+ 
 ### Layout and Positioning Parameters
 
 #### `position`
