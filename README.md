@@ -167,6 +167,21 @@ Adds inline CSS for the dialog element.
 * `[popup style-dialog="box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);"]`: Adds shadow
 * `[popup]`: No additional inline styles for the dialog
 
+#### `style-close-button`
+
+Adds inline CSS for the close button element.
+
+*Format:* `style-close-button=<css-string>`
+
+*Flag value:* None (must provide a value)
+
+*Default value:* None (no inline styles)
+
+*Examples:*
+* `[popup style-close-button="font-size: 24px; color: #ff0000;"]`: Creates a larger, red close button
+* `[popup style-close-button="background-color: #333; border-radius: 50%; color: white;"]`: Creates a dark circular close button
+* `[popup]`: No additional inline styles for the close button
+
 ### Layout and Positioning Parameters
 
 #### `position`
@@ -280,7 +295,7 @@ Determines whether clicking outside the popup area closes it.
 
 #### `modal`
 
-Makes the popup modal (focus trapped, background scrolling prevented).
+Controls whether the popup behaves as a modal dialog.
 
 *Format:* `modal=<true|false>`
 
@@ -289,9 +304,9 @@ Makes the popup modal (focus trapped, background scrolling prevented).
 *Default value:* `false`
 
 *Examples:*
-* `[popup modal="true"]`: Creates a modal popup (background scroll locked)
+* `[popup modal="true"]`: Creates a modal popup (focus trapped, background scrolling prevented, overlay added)
 * `[popup modal]`: Same as above (using flag value)
-* `[popup]`: Creates a non-modal popup (background can still be scrolled)
+* `[popup]`: Creates a non-modal popup (focus not trapped, background scrolling not prevented, overlay not added)
 
 #### `reappear-delay`
 
@@ -397,7 +412,7 @@ Sets the ARIA label for the popup element.
 * `[popup aria-label-popup="Newsletter Signup"]`: Sets a custom ARIA label
 * `[popup]`: Uses the default "Popup" label (translated if available)
 
-#### aria-label-close
+#### `aria-label-close`
 
 Sets the ARIA label for the close button.
 
@@ -412,8 +427,6 @@ Sets the ARIA label for the close button.
 * `[popup]`: Uses the default "Close popup" label (translated if available)
 
 ### Combining Parameters
-
-You can combine multiple parameters to create highly customized popups:
 
 ```
 [popup shown-on-exit-intent show-after-time="15" show-after-scroll="60" 
