@@ -37,8 +37,8 @@
 
 .kntnt-popup__close-button {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 0.5rem;
+  right: 0.5rem;
   background: transparent;
   border: 0;
   padding: 0;
@@ -46,8 +46,8 @@
   font-size: 1.5rem;
   line-height: 1;
   color: #555;
-  min-width: 3rem; /* Accessibility: Touch target size */
-  min-height: 3rem; /* Accessibility: Touch target size */
+  min-width: 2rem; /* Accessibility: Touch target size */
+  min-height: 2rem; /* Accessibility: Touch target size */
   display: flex;
   justify-content: center;
   align-items: center;
