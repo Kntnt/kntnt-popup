@@ -9,6 +9,8 @@
   --kntnt-popup-open-duration: 300ms; /* Default, override via JS/CSS */
   --kntnt-popup-close-duration: 200ms; /* Default, override via JS/CSS */
 
+  outline: 1px solid red;
+
   display: none; /* Initially hidden */
   font-family: inherit;
   box-sizing: border-box;
