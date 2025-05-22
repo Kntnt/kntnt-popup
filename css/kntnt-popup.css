@@ -1,79 +1,109 @@
 /* Kntnt Popup Base Styles & Micromodal Overrides */
 
+/*
+ * Base Kntnt Popup Styles
+ * These rules define the initial state and fundamental appearance of the popup
+ * container, including its display behavior when activated by Micromodal.
+ */
 .kntnt-popup {
-  display: none; /* Initially hidden */
-  font-family: inherit;
+  display: none;
   box-sizing: border-box;
+  font-family: inherit;
 }
 
-/* Micromodal adds .is-open to the main element */
 .kntnt-popup.is-open {
-  display: block; /* Show when open */
+  display: block;
 }
 
+/*
+ * Popup Overlay Styling
+ * Styles for the full-screen overlay that sits behind the popup dialog.
+ * It handles positioning and background behavior for modal interactions.
+ */
 .kntnt-popup__overlay {
   position: fixed;
   top: 0;
-  left: 0;
   right: 0;
   bottom: 0;
-  /* Background color will be set inline */
+  left: 0;
+  z-index: 1000;
   display: flex;
-  justify-content: center; /* Default: center */
-  align-items: center; /* Default: center */
-  z-index: 1000; /* Ensure it's on top */
-  overflow-y: auto; /* Allow overlay scrolling if content overflows */
-}
-
-.kntnt-popup:not(.kntnt-popup--modal) .kntnt-popup__overlay {
-  /* Allow clicks through, remove background, effectively hide */
-  background: transparent !important; /* Override inline style */
-  pointer-events: none; /* Allow clicks "through" */
-}
-
-.kntnt-popup__dialog {
-  background-color: #fff;
-  /* Width, max-height, and padding will be set inline */
+  justify-content: center;
+  align-items: center;
   overflow-y: auto;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
-  box-sizing: border-box;
-  position: relative; /* Needed for absolute positioning of close button */
-  pointer-events: auto; /* Ensure dialog itself is clickable when overlay is hidden */
 }
 
+/*
+ * Non-Modal Popup Overlay Adjustments
+ * For popups that are not modal, the overlay should be transparent and
+ * allow clicks to pass through to elements underneath.
+ */
+.kntnt-popup:not(.kntnt-popup--modal) .kntnt-popup__overlay {
+  background: transparent !important;
+  pointer-events: none;
+}
+
+/*
+ * Popup Dialog Styling
+ * Defines the appearance of the main popup box that contains the content.
+ * Includes background, shadow, border-radius, and overflow handling.
+ */
+.kntnt-popup__dialog {
+  position: relative;
+  box-sizing: border-box;
+  overflow-y: auto;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  pointer-events: auto;
+}
+
+/*
+ * Non-Modal Popup Dialog Adjustments
+ * Ensures the dialog remains interactive even if the overlay is non-blocking.
+ */
 .kntnt-popup:not(.kntnt-popup--modal) .kntnt-popup__dialog {
   pointer-events: auto;
 }
 
+/*
+ * Popup Close Button
+ * Styles for the 'X' button used to dismiss the popup.
+ * Includes positioning, appearance, and accessibility considerations.
+ */
 .kntnt-popup__close-button {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background: transparent;
-  border: 0;
+  z-index: 10;
+  display: flex;
+  min-width: 2rem;
+  min-height: 2rem;
+  justify-content: center;
+  align-items: center;
   padding: 0;
-  cursor: pointer;
+  border: 0;
+  background: transparent;
   font-size: 1.5rem;
   line-height: 1;
   color: #555;
-  min-width: 2rem; /* Accessibility: Touch target size */
-  min-height: 2rem; /* Accessibility: Touch target size */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10; /* Ensure button is above content */
+  cursor: pointer;
   transition: color 0.2s ease;
 }
+
 .kntnt-popup__close-button:hover {
   color: #000;
 }
 
+/*
+ * Popup Content Area
+ * Styles for the main content block within the popup dialog.
+ * Defines typography and spacing for elements inside the content.
+ */
 .kntnt-popup__content {
-  /* Styles for the main content area */
   margin-top: 0;
-  color: #333;
   line-height: 1.6;
+  color: #333;
 }
 
 .kntnt-popup__content h1,
@@ -83,56 +113,114 @@
   margin-bottom: 0.8em;
   color: #111;
 }
+
 .kntnt-popup__content p {
   margin-bottom: 1em;
 }
+
 .kntnt-popup__content > *:first-child {
-  margin-top: 0; /* Ensure no extra top margin on first element */
+  margin-top: 0;
 }
+
 .kntnt-popup__content > *:last-child {
-  margin-bottom: 0; /* Ensure no extra bottom margin on last element */
+  margin-bottom: 0;
 }
 
-/* --- Positioning --- */
-/* These rely on --pos-* classes being added to the __overlay element by PHP/JS */
-.kntnt-popup__overlay.kntnt-popup--pos-top { justify-content: center; align-items: flex-start; }
-.kntnt-popup__overlay.kntnt-popup--pos-top .kntnt-popup__dialog { margin-top: 2vh; }
+/*
+ * Positioning Variants - Top Alignment
+ * These rules adjust the alignment of the popup dialog within the overlay
+ * based on positioning classes applied to provide layout flexibility.
+ */
+.kntnt-popup__overlay.kntnt-popup--pos-top {
+  justify-content: center;
+  align-items: flex-start;
+}
 
-/* Top Right */
-.kntnt-popup__overlay.kntnt-popup--pos-top-right { justify-content: flex-end; align-items: flex-start; }
-.kntnt-popup__overlay.kntnt-popup--pos-top-right .kntnt-popup__dialog { margin-top: 2vh; margin-right: 2vw; }
+.kntnt-popup__overlay.kntnt-popup--pos-top .kntnt-popup__dialog {
+  margin-top: 2vh;
+}
 
-/* Right */
-.kntnt-popup__overlay.kntnt-popup--pos-right { justify-content: flex-end; align-items: center; }
-.kntnt-popup__overlay.kntnt-popup--pos-right .kntnt-popup__dialog { margin-right: 2vw; }
+.kntnt-popup__overlay.kntnt-popup--pos-top-right {
+  justify-content: flex-end;
+  align-items: flex-start;
+}
 
-/* Bottom Right */
-.kntnt-popup__overlay.kntnt-popup--pos-bottom-right { justify-content: flex-end; align-items: flex-end; }
-.kntnt-popup__overlay.kntnt-popup--pos-bottom-right .kntnt-popup__dialog { margin-bottom: 2vh; margin-right: 2vw; }
+.kntnt-popup__overlay.kntnt-popup--pos-top-right .kntnt-popup__dialog {
+  margin-top: 2vh;
+  margin-right: 2vw;
+}
 
-/* Bottom */
-.kntnt-popup__overlay.kntnt-popup--pos-bottom { justify-content: center; align-items: flex-end; }
-.kntnt-popup__overlay.kntnt-popup--pos-bottom .kntnt-popup__dialog { margin-bottom: 2vh; }
+.kntnt-popup__overlay.kntnt-popup--pos-top-left {
+  justify-content: flex-start;
+  align-items: flex-start;
+}
 
-/* Bottom Left */
-.kntnt-popup__overlay.kntnt-popup--pos-bottom-left { justify-content: flex-start; align-items: flex-end; }
-.kntnt-popup__overlay.kntnt-popup--pos-bottom-left .kntnt-popup__dialog { margin-bottom: 2vh; margin-left: 2vw; }
+.kntnt-popup__overlay.kntnt-popup--pos-top-left .kntnt-popup__dialog {
+  margin-top: 2vh;
+  margin-left: 2vw;
+}
 
-/* Left */
-.kntnt-popup__overlay.kntnt-popup--pos-left { justify-content: flex-start; align-items: center; }
-.kntnt-popup__overlay.kntnt-popup--pos-left .kntnt-popup__dialog { margin-left: 2vw; }
+/*
+ * Positioning Variants - Center Alignment
+ * Horizontal positioning variants for center vertical alignment.
+ */
+.kntnt-popup__overlay.kntnt-popup--pos-right {
+  justify-content: flex-end;
+  align-items: center;
+}
 
-/* Top Left */
-.kntnt-popup__overlay.kntnt-popup--pos-top-left { justify-content: flex-start; align-items: flex-start; }
-.kntnt-popup__overlay.kntnt-popup--pos-top-left .kntnt-popup__dialog { margin-top: 2vh; margin-left: 2vw; }
+.kntnt-popup__overlay.kntnt-popup--pos-right .kntnt-popup__dialog {
+  margin-right: 2vw;
+}
 
+.kntnt-popup__overlay.kntnt-popup--pos-left {
+  justify-content: flex-start;
+  align-items: center;
+}
 
-/* --- Animations --- */
-/* JS adds data-*-animation attribute to the main .kntnt-popup element */
-/* Animation is applied to the .kntnt-popup__dialog element */
-/* Durations are set via JS on .kntnt-popup__dialog */
+.kntnt-popup__overlay.kntnt-popup--pos-left .kntnt-popup__dialog {
+  margin-left: 2vw;
+}
+
+/*
+ * Positioning Variants - Bottom Alignment
+ * Bottom positioning variants with appropriate margin spacing.
+ */
+.kntnt-popup__overlay.kntnt-popup--pos-bottom {
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.kntnt-popup__overlay.kntnt-popup--pos-bottom .kntnt-popup__dialog {
+  margin-bottom: 2vh;
+}
+
+.kntnt-popup__overlay.kntnt-popup--pos-bottom-right {
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.kntnt-popup__overlay.kntnt-popup--pos-bottom-right .kntnt-popup__dialog {
+  margin-bottom: 2vh;
+  margin-right: 2vw;
+}
+
+.kntnt-popup__overlay.kntnt-popup--pos-bottom-left {
+  justify-content: flex-start;
+  align-items: flex-end;
+}
+
+.kntnt-popup__overlay.kntnt-popup--pos-bottom-left .kntnt-popup__dialog {
+  margin-bottom: 2vh;
+  margin-left: 2vw;
+}
+
+/*
+ * Animation Setup and Default Configuration
+ * Defines how animations are applied to the popup dialog and sets up
+ * default duration values through CSS custom properties.
+ */
 :root {
-  /* Default durations if not overridden by JS or attribute */
   --kntnt-popup-open-duration-default: 300ms;
   --kntnt-popup-close-duration-default: 200ms;
 }
@@ -141,133 +229,319 @@
   animation-duration: var(--kntnt-popup-open-duration, var(--kntnt-popup-open-duration-default));
   animation-fill-mode: forwards;
 }
+
 .kntnt-popup[data-close-animation] .kntnt-popup__dialog {
   animation-duration: var(--kntnt-popup-close-duration, var(--kntnt-popup-close-duration-default));
   animation-fill-mode: forwards;
 }
 
-/* Open Animations (Assign default durations here as fallback) */
-.kntnt-popup[data-open-animation="tada"] .kntnt-popup__dialog { animation-name: kntnt-tada; --kntnt-popup-open-duration-default: 400ms; }
-.kntnt-popup[data-open-animation="fade-in"] .kntnt-popup__dialog { animation-name: kntnt-fade-in; --kntnt-popup-open-duration-default: 200ms; }
-.kntnt-popup[data-open-animation="fade-in-top"] .kntnt-popup__dialog { animation-name: kntnt-fade-in-top; --kntnt-popup-open-duration-default: 300ms; }
-.kntnt-popup[data-open-animation="fade-in-right"] .kntnt-popup__dialog { animation-name: kntnt-fade-in-right; --kntnt-popup-open-duration-default: 300ms; }
-.kntnt-popup[data-open-animation="fade-in-bottom"] .kntnt-popup__dialog { animation-name: kntnt-fade-in-bottom; --kntnt-popup-open-duration-default: 300ms; }
-.kntnt-popup[data-open-animation="fade-in-left"] .kntnt-popup__dialog { animation-name: kntnt-fade-in-left; --kntnt-popup-open-duration-default: 300ms; }
-.kntnt-popup[data-open-animation="slide-in-top"] .kntnt-popup__dialog { animation-name: kntnt-slide-in-top; --kntnt-popup-open-duration-default: 300ms; }
-.kntnt-popup[data-open-animation="slide-in-right"] .kntnt-popup__dialog { animation-name: kntnt-slide-in-right; --kntnt-popup-open-duration-default: 300ms; }
-.kntnt-popup[data-open-animation="slide-in-bottom"] .kntnt-popup__dialog { animation-name: kntnt-slide-in-bottom; --kntnt-popup-open-duration-default: 300ms; }
-.kntnt-popup[data-open-animation="slide-in-left"] .kntnt-popup__dialog { animation-name: kntnt-slide-in-left; --kntnt-popup-open-duration-default: 300ms; }
+/*
+ * Open Animation Definitions
+ * Associates data attributes with specific animation names and sets
+ * their default durations if not overridden by JavaScript.
+ */
+.kntnt-popup[data-open-animation="tada"] .kntnt-popup__dialog {
+  animation-name: kntnt-tada;
+  --kntnt-popup-open-duration-default: 400ms;
+}
 
-/* Close Animations (Assign default durations here as fallback) */
-.kntnt-popup[data-close-animation="fade-out"] .kntnt-popup__dialog { animation-name: kntnt-fade-out; --kntnt-popup-close-duration-default: 150ms; }
-.kntnt-popup[data-close-animation="fade-out-top"] .kntnt-popup__dialog { animation-name: kntnt-fade-out-top; --kntnt-popup-close-duration-default: 200ms; }
-.kntnt-popup[data-close-animation="fade-out-right"] .kntnt-popup__dialog { animation-name: kntnt-fade-out-right; --kntnt-popup-close-duration-default: 200ms; }
-.kntnt-popup[data-close-animation="fade-out-bottom"] .kntnt-popup__dialog { animation-name: kntnt-fade-out-bottom; --kntnt-popup-close-duration-default: 200ms; }
-.kntnt-popup[data-close-animation="fade-out-left"] .kntnt-popup__dialog { animation-name: kntnt-fade-out-left; --kntnt-popup-close-duration-default: 200ms; }
-.kntnt-popup[data-close-animation="slide-out-top"] .kntnt-popup__dialog { animation-name: kntnt-slide-out-top; --kntnt-popup-close-duration-default: 200ms; }
-.kntnt-popup[data-close-animation="slide-out-right"] .kntnt-popup__dialog { animation-name: kntnt-slide-out-right; --kntnt-popup-close-duration-default: 200ms; }
-.kntnt-popup[data-close-animation="slide-out-bottom"] .kntnt-popup__dialog { animation-name: kntnt-slide-out-bottom; --kntnt-popup-close-duration-default: 200ms; }
-.kntnt-popup[data-close-animation="slide-out-left"] .kntnt-popup__dialog { animation-name: kntnt-slide-out-left; --kntnt-popup-close-duration-default: 200ms; }
+.kntnt-popup[data-open-animation="fade-in"] .kntnt-popup__dialog {
+  animation-name: kntnt-fade-in;
+  --kntnt-popup-open-duration-default: 200ms;
+}
 
+.kntnt-popup[data-open-animation="fade-in-top"] .kntnt-popup__dialog {
+  animation-name: kntnt-fade-in-top;
+  --kntnt-popup-open-duration-default: 300ms;
+}
 
-/* Keyframes */
+.kntnt-popup[data-open-animation="fade-in-right"] .kntnt-popup__dialog {
+  animation-name: kntnt-fade-in-right;
+  --kntnt-popup-open-duration-default: 300ms;
+}
+
+.kntnt-popup[data-open-animation="fade-in-bottom"] .kntnt-popup__dialog {
+  animation-name: kntnt-fade-in-bottom;
+  --kntnt-popup-open-duration-default: 300ms;
+}
+
+.kntnt-popup[data-open-animation="fade-in-left"] .kntnt-popup__dialog {
+  animation-name: kntnt-fade-in-left;
+  --kntnt-popup-open-duration-default: 300ms;
+}
+
+.kntnt-popup[data-open-animation="slide-in-top"] .kntnt-popup__dialog {
+  animation-name: kntnt-slide-in-top;
+  --kntnt-popup-open-duration-default: 300ms;
+}
+
+.kntnt-popup[data-open-animation="slide-in-right"] .kntnt-popup__dialog {
+  animation-name: kntnt-slide-in-right;
+  --kntnt-popup-open-duration-default: 300ms;
+}
+
+.kntnt-popup[data-open-animation="slide-in-bottom"] .kntnt-popup__dialog {
+  animation-name: kntnt-slide-in-bottom;
+  --kntnt-popup-open-duration-default: 300ms;
+}
+
+.kntnt-popup[data-open-animation="slide-in-left"] .kntnt-popup__dialog {
+  animation-name: kntnt-slide-in-left;
+  --kntnt-popup-open-duration-default: 300ms;
+}
+
+/*
+ * Close Animation Definitions
+ * Associates data attributes with specific animation names and sets
+ * their default durations if not overridden by JavaScript.
+ */
+.kntnt-popup[data-close-animation="fade-out"] .kntnt-popup__dialog {
+  animation-name: kntnt-fade-out;
+  --kntnt-popup-close-duration-default: 150ms;
+}
+
+.kntnt-popup[data-close-animation="fade-out-top"] .kntnt-popup__dialog {
+  animation-name: kntnt-fade-out-top;
+  --kntnt-popup-close-duration-default: 200ms;
+}
+
+.kntnt-popup[data-close-animation="fade-out-right"] .kntnt-popup__dialog {
+  animation-name: kntnt-fade-out-right;
+  --kntnt-popup-close-duration-default: 200ms;
+}
+
+.kntnt-popup[data-close-animation="fade-out-bottom"] .kntnt-popup__dialog {
+  animation-name: kntnt-fade-out-bottom;
+  --kntnt-popup-close-duration-default: 200ms;
+}
+
+.kntnt-popup[data-close-animation="fade-out-left"] .kntnt-popup__dialog {
+  animation-name: kntnt-fade-out-left;
+  --kntnt-popup-close-duration-default: 200ms;
+}
+
+.kntnt-popup[data-close-animation="slide-out-top"] .kntnt-popup__dialog {
+  animation-name: kntnt-slide-out-top;
+  --kntnt-popup-close-duration-default: 200ms;
+}
+
+.kntnt-popup[data-close-animation="slide-out-right"] .kntnt-popup__dialog {
+  animation-name: kntnt-slide-out-right;
+  --kntnt-popup-close-duration-default: 200ms;
+}
+
+.kntnt-popup[data-close-animation="slide-out-bottom"] .kntnt-popup__dialog {
+  animation-name: kntnt-slide-out-bottom;
+  --kntnt-popup-close-duration-default: 200ms;
+}
+
+.kntnt-popup[data-close-animation="slide-out-left"] .kntnt-popup__dialog {
+  animation-name: kntnt-slide-out-left;
+  --kntnt-popup-close-duration-default: 200ms;
+}
+
+/*
+ * Basic Animation Keyframes - Fade Effects
+ * Defines simple opacity-based animations for smooth appearing and
+ * disappearing transitions.
+ */
 @keyframes kntnt-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
 @keyframes kntnt-fade-out {
   from { opacity: 1; }
   to { opacity: 0; }
 }
+
+/*
+ * Directional Fade Animation Keyframes
+ * Combines opacity changes with subtle transform movements for enhanced
+ * visual feedback during popup appearance and dismissal.
+ */
 @keyframes kntnt-fade-in-top {
-  from { opacity: 0; transform: translateY(-15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
 @keyframes kntnt-fade-out-top {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-15px); }
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
 }
+
 @keyframes kntnt-fade-in-right {
-  from { opacity: 0; transform: translateX(15px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
+
 @keyframes kntnt-fade-out-right {
-  from { opacity: 1; transform: translateX(0); }
-  to { opacity: 0; transform: translateX(15px); }
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(15px);
+  }
 }
+
 @keyframes kntnt-fade-in-bottom {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
 @keyframes kntnt-fade-out-bottom {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(15px); }
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(15px);
+  }
 }
+
 @keyframes kntnt-fade-in-left {
-  from { opacity: 0; transform: translateX(-15px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
+
 @keyframes kntnt-fade-out-left {
-  from { opacity: 1; transform: translateX(0); }
-  to { opacity: 0; transform: translateX(-15px); }
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-15px);
+  }
 }
+
+/*
+ * Slide Animation Keyframes
+ * Provides dramatic slide-in and slide-out effects from various directions
+ * using full transform movements for dynamic popup presentations.
+ */
 @keyframes kntnt-slide-in-top {
   from { transform: translateY(-100%); }
   to { transform: translateY(0); }
 }
+
 @keyframes kntnt-slide-out-top {
   from { transform: translateY(0); }
   to { transform: translateY(-100%); }
 }
+
 @keyframes kntnt-slide-in-right {
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
 }
+
 @keyframes kntnt-slide-out-right {
   from { transform: translateX(0); }
   to { transform: translateX(100%); }
 }
+
 @keyframes kntnt-slide-in-bottom {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
 }
+
 @keyframes kntnt-slide-out-bottom {
   from { transform: translateY(0); }
   to { transform: translateY(100%); }
 }
+
 @keyframes kntnt-slide-in-left {
   from { transform: translateX(-100%); }
   to { transform: translateX(0); }
 }
+
 @keyframes kntnt-slide-out-left {
   from { transform: translateX(0); }
   to { transform: translateX(-100%); }
 }
+
+/*
+ * Special Effect Animation Keyframes
+ * Complex animation sequences for enhanced visual appeal and attention-
+ * grabbing popup presentations with multi-stage transformations.
+ */
 @keyframes kntnt-tada {
   from { transform: scale3d(1, 1, 1); }
-  10%, 20% { transform: scale3d(0.95, 0.95, 0.95) rotate3d(0, 0, 1, -3deg); }
-  30%, 50%, 70%, 90% { transform: scale3d(1.02, 1.02, 1.02) rotate3d(0, 0, 1, 3deg); }
-  40%, 60%, 80% { transform: scale3d(1.02, 1.02, 1.02) rotate3d(0, 0, 1, -3deg); }
+  10%,
+  20% {
+    transform: scale3d(0.95, 0.95, 0.95) rotate3d(0, 0, 1, -3deg);
+  }
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: scale3d(1.02, 1.02, 1.02) rotate3d(0, 0, 1, 3deg);
+  }
+  40%,
+  60%,
+  80% {
+    transform: scale3d(1.02, 1.02, 1.02) rotate3d(0, 0, 1, -3deg);
+  }
   to { transform: scale3d(1, 1, 1); }
 }
 
-/* Accessibility */
+/*
+ * Accessibility Utilities
+ * Standard class for visually hiding content while keeping it accessible
+ * to screen readers and assistive technologies.
+ */
 .screen-reader-text {
-  border: 0;
-  clip: rect(1px, 1px, 1px, 1px);
-  clip-path: inset(50%);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
   position: absolute !important;
   width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  clip-path: inset(50%);
   word-wrap: normal !important;
 }
 
-/* Responsive Adjustments */
+/*
+ * Responsive Adjustments
+ * Modifications for smaller screens to ensure usability and maintain
+ * proper touch target sizes for mobile interactions.
+ */
 @media (max-width: 600px) {
-  /* Ensure close button remains easily tappable */
   .kntnt-popup__close-button {
     top: 5px;
     right: 5px;

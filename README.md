@@ -76,11 +76,11 @@ Some parameters accept different types of values, such as numbers, strings, or b
 
 These parameters control when and how the popup appears.
 
-#### `shown-on-exit-intent`
+#### `show-on-exit-intent`
 
 Controls whether the popup shows when the user moves their cursor to leave the page.
 
-*Format:* `shown-on-exit-intent=<true|false>`
+*Format:* `show-on-exit-intent=<true|false>`
 
 *Flag value:* `true`
 
@@ -88,8 +88,8 @@ Controls whether the popup shows when the user moves their cursor to leave the p
 
 *Examples:*
 
-* `[popup shown-on-exit-intent="true"]`: Triggers popup when user attempts to leave the page
-* `[popup shown-on-exit-intent]`: Same as above since flag value is `true`
+* `[popup show-on-exit-intent="true"]`: Triggers popup when user attempts to leave the page
+* `[popup show-on-exit-intent]`: Same as above since flag value is `true`
 * `[popup]`: Won't trigger popup when user attempts to leave the page since default value is `false`
 
 #### `show-after-time`
@@ -491,7 +491,7 @@ Sets the ARIA label for the close button.
 ### Combining Parameters
 
 ```
-[popup shown-on-exit-intent show-after-time="15" show-after-scroll="60" 
+[popup show-on-exit-intent show-after-time="15" show-after-scroll="60" 
        position="center" width="600px" overlay-color="rgba(0,0,50,80%)"
        close-button modal open-animation="fade-in" close-animation="fade-out"]
 <h2>Subscribe to Our Newsletter</h2>
@@ -516,7 +516,7 @@ Show a popup after 5 seconds with a close button:
 Show a popup on exit intent with custom width and position:
 
 ```
-[popup shown-on-exit-intent width="400px" position="top"]
+[popup show-on-exit-intent width="400px" position="top"]
 <h2>Wait before you go!</h2>
 <p>Subscribe to our newsletter to get exclusive content.</p>
 [/popup]
@@ -720,7 +720,7 @@ If you are not familiar with Git, please create a new ticket on the plugin's iss
 
 ## Changelog
 
-### 1.0.0 (2025-04-19)
+## 1.0.0 (2025-05-22)
 
 - Initial release
 - Added shortcode functionality with comprehensive parameter options
