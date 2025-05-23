@@ -49,17 +49,43 @@ final class Shortcode {
 
 		// Define default values for attributes that are completely omitted.
 		$this->attribute_omitted_defaults = [
-			'id' => false, 'show-on-exit-intent' => false, 'show-after-time' => false, 'show-after-scroll' => false, 'close-button' => false, 'close-outside-click' => false, 'reappear-delay' => 0, 'modal' => false, 'overlay-color' => 'rgba(0,0,0,0.8)', 'width' => 'clamp(300px, 90vw, 800px)', 'max-height' => '95vh', 'padding' => 'clamp(20px, calc(5.2vw - 20px), 160px)', 'position' => 'center', 'open-animation' => false, 'close-animation' => false, 'open-animation-duration' => false, 'close-animation-duration' => false, 'class' => '', 'style-overlay' => '', 'style-dialog' => '', 'style-close-button' => '', 'style-content' => '', 'aria-label-popup' => 'Popup', // Localized in handle_shortcode if still default.
+			'id' => false,
+			'show-on-exit-intent' => false,
+			'show-after-time' => false,
+			'show-after-scroll' => false,
+			'close-button' => false,
+			'close-outside-click' => false,
+			'reappear-delay' => 0,
+			'modal' => false,
+			'overlay-color' => 'rgba(0,0,0,0.8)',
+			'width' => 'clamp(300px, 90vw, 800px)',
+			'max-height' => '95vh',
+			'padding' => 'clamp(20px, calc(5.2vw - 20px), 160px)',
+			'position' => 'center',
+			'open-animation' => false,
+			'close-animation' => false,
+			'open-animation-duration' => false,
+			'close-animation-duration' => false,
+			'class' => '',
+			'style-overlay' => '',
+			'style-dialog' => '',
+			'style-close-button' => '',
+			'style-content' => '',
+			'aria-label-popup' => 'Popup', // Localized in handle_shortcode if still default.
 			'aria-label-close' => 'Close popup', // Localized in handle_shortcode if still default.
 		];
 
 		// Define default values for attributes when used as valueless flags.
 		$this->attribute_flag_defaults = [
-			'show-on-exit-intent' => true, 'show-after-time' => 30, // seconds
+			'show-on-exit-intent' => true,
+			'show-after-time' => 30, // seconds
 			'show-after-scroll' => 80, // percent
 			'close-button' => '✖', // HTML entity for multiplication sign
-			'close-outside-click' => true, 'reappear-delay' => '1d', // 1 day
-			'modal' => true, 'open-animation' => 'tada', 'close-animation' => 'fade-out',
+			'close-outside-click' => true,
+			'reappear-delay' => '1d', // 1 day
+			'modal' => true,
+			'open-animation' => 'tada',
+			'close-animation' => 'fade-out',
 		];
 
 	}
@@ -136,12 +162,24 @@ final class Shortcode {
 		$assets_manager = Plugin::get_instance()->get_assets_manager();
 		$assets_manager->mark_assets_as_needed();
 		$assets_manager->add_popup_configuration( [
-			                                          'instanceId' => $validated_attributes['id'], 'showOnExitIntent' => $validated_attributes['show-on-exit-intent'], 'showAfterTime' => $validated_attributes['show-after-time'], 'showAfterScroll' => $validated_attributes['show-after-scroll'], 'closeButton' => $validated_attributes['close-button'] !== false, 'closeOutsideClick' => $validated_attributes['close-outside-click'], 'reappearDelay' => $validated_attributes['reappear-delay'], 'isModal' => $validated_attributes['modal'], 'openAnimation' => $validated_attributes['open-animation'], 'closeAnimation' => $validated_attributes['close-animation'], 'openAnimationDuration' => $validated_attributes['open-animation-duration'] !== false ? (int) $validated_attributes['open-animation-duration'] : false, 'closeAnimationDuration' => $validated_attributes['close-animation-duration'] !== false ? (int) $validated_attributes['close-animation-duration'] : false,
+			                                          'instanceId' => $validated_attributes['id'],
+			                                          'showOnExitIntent' => $validated_attributes['show-on-exit-intent'],
+			                                          'showAfterTime' => $validated_attributes['show-after-time'],
+			                                          'showAfterScroll' => $validated_attributes['show-after-scroll'],
+			                                          'closeButton' => $validated_attributes['close-button'] !== false,
+			                                          'closeOutsideClick' => $validated_attributes['close-outside-click'],
+			                                          'reappearDelay' => $validated_attributes['reappear-delay'],
+			                                          'isModal' => $validated_attributes['modal'],
+			                                          'openAnimation' => $validated_attributes['open-animation'],
+			                                          'closeAnimation' => $validated_attributes['close-animation'],
+			                                          'openAnimationDuration' => $validated_attributes['open-animation-duration'] !== false ? (int) $validated_attributes['open-animation-duration'] : false,
+			                                          'closeAnimationDuration' => $validated_attributes['close-animation-duration'] !== false ? (int) $validated_attributes['close-animation-duration'] : false,
 		                                          ] );
 
 		// Prepare CSS classes for the main popup wrapper element.
 		$wrapper_classes = [
-			'kntnt-popup', esc_attr( $validated_attributes['class'] ), // User-defined classes
+			'kntnt-popup',
+			esc_attr( $validated_attributes['class'] ), // User-defined classes
 			$validated_attributes['modal'] ? 'kntnt-popup--modal' : '', // Modal-specific class
 		];
 		$validated_attributes['wrapper_class_string'] = trim( implode( ' ', array_filter( $wrapper_classes ) ) );
