@@ -14,8 +14,8 @@
         <div class="kntnt-popup__dialog"
              role="dialog"
              aria-modal="<?= $atts['modal'] ? 'true' : 'false'; ?>"
-             aria-labelledby="<?= esc_attr( $atts['id'] ) ?>-title" <?php // Consider adding a title element for aria-labelledby ?>
-             aria-describedby="<?= esc_attr( $atts['id'] ) ?>-content" <?php // Wrap content in div with this ID ?>
+             aria-label="<?= esc_attr( $atts['aria-label-popup'] ) ?>"
+             aria-describedby="<?= esc_attr( $atts['id'] ) ?>-content"
              style="width: <?= esc_attr( $atts['width'] ) ?>; max-height: <?= esc_attr( $atts['max-height'] ) ?>; padding: <?= esc_attr( $atts['padding'] ) ?>; <?= esc_attr( $atts['style-dialog'] ) ?>">
 			<?php if ( $atts['close-button'] ) : ?>
                 <button class="kntnt-popup__close-button"
@@ -26,7 +26,7 @@
                 </button>
 			<?php endif; ?>
             <div class="kntnt-popup__content" id="<?= esc_attr( $atts['id'] ) ?>-content" style="<?= esc_attr( $atts['style-content'] ) ?>">
-				<?= $content; // Content already processed with do_shortcode  ?>
+				<?= $content; ?>
             </div>
         </div>
     </div>
