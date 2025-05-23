@@ -3,7 +3,7 @@
  * Plugin Name: Kntnt Popup
  * Plugin URI: https://github.com/Kntnt/kntnt-popup
  * Description: Provides shortcode for creating popups
- * Version: 1.0.2
+ * Version: 1.1.0
  * Requires at least: 6.8
  * Requires PHP: 8.2
  * Author: TBarregren

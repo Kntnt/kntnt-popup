@@ -5,7 +5,7 @@
  * It relies on the Micromodal.js library for modal functionality and kntntPopupData (localized from PHP)
  * for popup configurations.
  *
- * @version 1.0.0
+ * @version 1.1.0
  * @param {Window} window - The global window object.
  * @param {Document} document - The global document object.
  * @param {object} MicroModal - The MicroModal library instance.
@@ -35,6 +35,19 @@
   let exitIntentListenerAttached = false
   const exitIntentPopups = []
   const STORAGE_PREFIX = 'kntnt_popup_last_closed_'
+  const activeEscKeyListeners = {}
+
+  /**
+   * Prevents the ESC key from closing a modal when closeEscKey is false.
+   *
+   * @param {KeyboardEvent} event - The keyboard event.
+   */
+  const preventEscapeKey = (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+  }
 
   /**
    * Retrieves the animation duration for a popup opening or closing.
@@ -217,18 +230,34 @@
     dispatchCustomEvent('kntnt_popup:before_open', popupId)
     MicroModal.show(popupId, {
       onShow: (modal) => {
+
         if (!modal) return
         const dialog = modal.querySelector('.kntnt-popup__dialog')
         if (!dialog) return
         setupModalAnimations(modal, dialog, config, 'open')
         modal.removeAttribute('data-close-animation')
         dialog.style.removeProperty('--kntnt-popup-close-duration')
+
+        // Handle ESC key behavior based on configuration
+        if (!config.closeEscKey) {
+          document.addEventListener('keydown', preventEscapeKey, true)
+          activeEscKeyListeners[popupId] = true
+        }
+
         dispatchCustomEvent('kntnt_popup:after_open', popupId)
+
       },
       onClose: (modal) => {
         if (!modal) return
         storeCloseTimestamp(popupId)
         const dialog = modal.querySelector('.kntnt-popup__dialog')
+
+        // Remove ESC key prevention if it was active
+        if (activeEscKeyListeners[popupId]) {
+          document.removeEventListener('keydown', preventEscapeKey, true)
+          delete activeEscKeyListeners[popupId]
+        }
+
         if (!dialog) {
           dispatchCustomEvent('kntnt_popup:after_close', popupId)
           return

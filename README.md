@@ -10,6 +10,8 @@ WordPress plugin that provides shortcode for creating popups.
 
 Kntnt Popup is a lightweight, customizable WordPress plugin that provides an easy-to-use shortcode for creating modal popups on your website. With this plugin, you can create popups triggered by various user actions without writing any JavaScript or HTML code.
 
+This plugin is built on top of [Micromodal.js](https://micromodal.vercel.app/) by Indrashish Ghosh, a powerful and accessible micro modal library. We extend our sincere gratitude to the Micromodal.js project and its contributors for providing such an excellent foundation for creating accessible modal dialogs.
+
 ### Key Features:
 
 - Simple shortcode implementation with extensive customization options
@@ -36,31 +38,161 @@ The plugin provides a shortcode `[popup]...[/popup]` where the content between t
 Basic usage:
 
 ```
-[popup show-after-time="5"]Your popup content here. Can include text, images, forms, and even other shortcodes.[/popup]
+[popup modal show-after-time=3 close-button close-outside-click close-esc-key]This is a typical pop-up.[/popup]
 ```
 
-In addition to the automatic triggers (time delay, scroll position, exit intent), you can also launch a popup by clicking any HTML element (like a link or button) on the page.
+Here's a sophisticated popup that combines multiple opening triggers and closing methods:
 
-1. **Define the popup:** First, you must have defined the popup on the same page using the shortcode with a unique ID:
+```
+[popup modal show-after-time=30 show-after-scroll=50 show-on-exit-intent close-button close-outside-click close-esc-key overlay-color="rgba(0 0 0 / 50%)" style-overlay="backdrop-filter:blur(5px);" open-animation="fade-in-top" close-animation="fade-out-top" aria-label-popup="Demo"]
+<h2>Popup demo</h2>
+<p>This popup can be triggered by:</p>
+<ul>
+  <li>Waiting 30 seconds on the page</li>
+  <li>Scrolling 50% of the page</li>
+  <li>Moving your mouse to leave the page</li>
+</ul>
+<p>You can close it by:</p>
+<ul>
+  <li>Clicking the × button</li>
+  <li>Clicking outside the popup</li>
+  <li>Pressing the ESC key</li>
+  <li>Or by <a data-popup-close>clicking this link</a></li>
+</ul>
+[/popup]
+```
+
+This example creates a modal popup that will appear when ANY of the three trigger conditions are met (whichever happens first). Users can then close it using any of the four available methods, providing maximum flexibility and user control.
+
+## Triggers
+
+Kntnt Popup offers multiple ways to control when and how popups appear and disappear. You can use automatic triggers, manual controls, or combine multiple methods to create the perfect user experience.
+
+### Time-based trigger
+
+**Delayed display:** Show a popup after a specified number of seconds:
+```
+[popup show-after-time="10"]This popup appears after 10 seconds.[/popup]
+```
+
+**Immediate display:** Show a popup as soon as the page loads:
+```
+[popup show-after-time="0"]This popup appears immediately when the page loads.[/popup]
+```
+
+### Scroll-based trigger
+
+Show a popup when the user has scrolled a certain percentage of the page:
+```
+[popup show-after-scroll="75"]This popup appears when you've scrolled 75% of the page.[/popup]
+```
+
+### Exit intent trigger
+
+Trigger a popup when the user moves their mouse cursor toward the browser's address bar or tab area, indicating they might be about to leave:
+```
+[popup show-on-exit-intent]Wait! Don't leave yet. Check out this special offer![/popup]
+```
+
+*Note: Exit intent only works on desktop/laptop devices with a mouse cursor.*
+
+### Clickable triggers
+
+1. **Define the popup:** First, create a popup with a unique ID:
    ```
-   [popup id="my-unique-popup"]Popup content…[/popup]
+   [popup id="newsletter-signup"]
+   <h2>Subscribe to our newsletter</h2>
+   <p>Get weekly updates delivered to your inbox.</p>
+   [/popup]
    ```
 
-2. **Create the trigger element (link/button):** Next, add an HTML element where you want your trigger. This element must have the data attribute `data-popup-open` set to the ID of the popup you want to open.
+2. **Create trigger elements:** Add the `data-popup-open` attribute to any HTML element to make it open the popup:
 
-   **Example using a link:**
+   **Text link:**
    ```html
-   <a href="#" data-popup-open="my-unique-popup">Open My Popup</a>
+   <a href="#" data-popup-open="newsletter-signup">Subscribe to our newsletter</a>
    ```
 
-   **Example using a button:**
+   **Button:**
    ```html
-   <button data-popup-open="my-unique-popup">Open My Popup</button>
+   <button data-popup-open="newsletter-signup">Sign Up Now</button>
    ```
 
-   When a user clicks the element with `data-popup-open`, the plugin's JavaScript will automatically open the corresponding popup.
+   **Image:**
+   ```html
+   <img src="signup-banner.jpg" data-popup-open="newsletter-signup" alt="Click to subscribe">
+   ```
 
-*Important:* Both the popup shortcode and the HTML element with `data-popup-open` must exist on the same page.
+   **Any element:**
+   ```html
+   <div class="promo-box" data-popup-open="newsletter-signup">
+     <h3>Special Offer!</h3>
+     <p>Click anywhere on this box to learn more</p>
+   </div>
+   ```
+
+*Important:* Both the popup shortcode and trigger elements must exist on the same page.
+
+## Closing popups
+
+Kntnt Popup provides several ways for users to close popups, giving you complete control over the user experience.
+
+### Built-in close button
+
+Add a close button (×) in the top-right corner of the popup:
+```
+[popup close-button]This popup has a close button.[/popup]
+```
+
+You can customize the close button character:
+```
+[popup close-button="✕"]This popup uses a different close icon.[/popup]
+```
+
+### Click outside to close
+
+Allow users to close the popup by clicking anywhere outside the popup area:
+```
+[popup close-outside-click]Click outside this popup to close it.[/popup]
+```
+
+### ESC key to close
+
+Enable closing the popup by pressing the ESC key:
+```
+[popup close-esc-key]Press ESC to close this popup.[/popup]
+```
+
+### Custom close triggers
+
+Make any element inside or outside the popup close it by adding the `data-popup-close` attribute:
+
+**Close link inside popup content:**
+```
+[popup modal show-after-time="5"]
+<h2>Welcome!</h2>
+<p>Thanks for visiting our site.</p>
+<p><a data-popup-close>Close this message</a></p>
+[/popup]
+```
+
+**Close button inside popup:**
+```
+[popup show-after-scroll="50"]
+<h2>Newsletter Signup</h2>
+<form>
+  <!-- form fields here -->
+  <button type="submit">Subscribe</button>
+  <button type="button" data-popup-close>Maybe Later</button>
+</form>
+[/popup]
+```
+
+**External close trigger (anywhere on the page):**
+```html
+<!-- This button can be anywhere on your page -->
+<button data-popup-close>Close any open popup</button>
+```
 
 ## Parameters
 
@@ -107,6 +239,7 @@ Controls whether the popup shows after a specified number of seconds.
 *Examples:*
 
 * `[popup show-after-time="5"]`: Triggers popup after 5 seconds
+* `[popup show-after-time="0"]`: Triggers popup immediately when the page loads
 * `[popup show-after-time]`: Triggers popup after 30 seconds (flag value)
 * `[popup]`: Won't trigger popup based on time since default value is `false`
 
@@ -340,6 +473,22 @@ Determines whether clicking outside the popup area closes it.
 * `[popup close-outside-click]`: Same as above (using flag value)
 * `[popup]`: Clicking outside doesn't close the popup
 
+#### `close-esc-key`
+
+Determines whether pressing the ESC key closes the popup.
+
+*Format:* `close-esc-key=<true|false>`
+
+*Flag value:* `true`
+
+*Default value:* `false`
+
+*Examples:*
+
+* `[popup close-esc-key="true"]`: Popup closes when the ESC key is pressed
+* `[popup close-esc-key]`: Same as above (using flag value)
+* `[popup]`: Popup does not close when the ESC key is pressed
+
 #### `modal`
 
 Controls whether the popup behaves as a modal dialog.
@@ -493,14 +642,14 @@ Sets the ARIA label for the close button.
 ```
 [popup show-on-exit-intent show-after-time="15" show-after-scroll="60" 
        position="center" width="600px" overlay-color="rgba(0,0,50,80%)"
-       close-button modal open-animation="fade-in" close-animation="fade-out"]
+       close-button modal close-esc-key open-animation="fade-in" close-animation="fade-out"]
 <h2>Subscribe to Our Newsletter</h2>
 <p>Get the latest updates and special offers delivered directly to your inbox.</p>
 [contact-form-7 id="contact-form-12345" title="Newsletter Signup Form"]
 [/popup]
 ```
 
-In this example, the popup will appear when the user tries to leave the page, OR after 15 seconds, OR after scrolling 60% of the page - whichever happens first. It will be centered with a width of 600px, have a dark blue overlay, display a close button, prevent background scrolling, and use fade animations.
+In this example, the popup will appear when the user tries to leave the page, OR after 15 seconds, OR after scrolling 60% of the page - whichever happens first. It will be centered with a width of 600px, have a dark blue overlay, display a close button, allow ESC key closing, prevent background scrolling, and use fade animations.
 
 ### Examples
 
@@ -720,6 +869,13 @@ If you are not familiar with Git, please create a new ticket on the plugin's iss
 
 ## Changelog
 
+## 1.1.0 (2025-05-23)
+
+- feature: add new `close-esc-key` parameter to control whether ESC key closes the popup
+- enhance: improve documentation with better examples and clearer usage instructions
+- enhance: add acknowledgment of Micromodal.js library
+- improve: reorganize README structure for better navigation
+
 ## 1.0.2 (2025-05-23)
 
 - fix: resolve JavaScript initialization timing issue that prevented popups from working
@@ -730,7 +886,7 @@ If you are not familiar with Git, please create a new ticket on the plugin's iss
 
 - fix: show-after-time=0 works
 - fix: functions works in css
-- fix: correct aria is used 
+- fix: correct aria is used
 
 ## 1.0.0 (2025-05-22)
 

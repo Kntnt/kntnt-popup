@@ -55,6 +55,7 @@ final class Shortcode {
 			'show-after-scroll' => false,
 			'close-button' => false,
 			'close-outside-click' => false,
+			'close-esc-key' => false,
 			'reappear-delay' => 0,
 			'modal' => false,
 			'overlay-color' => 'rgba(0,0,0,0.8)',
@@ -82,6 +83,7 @@ final class Shortcode {
 			'show-after-scroll' => 80, // percent
 			'close-button' => '✖', // HTML entity for multiplication sign
 			'close-outside-click' => true,
+			'close-esc-key' => true,
 			'reappear-delay' => '1d', // 1 day
 			'modal' => true,
 			'open-animation' => 'tada',
@@ -169,6 +171,7 @@ final class Shortcode {
 			                                          'showAfterScroll' => $validated_attributes['show-after-scroll'],
 			                                          'closeButton' => $validated_attributes['close-button'] !== false,
 			                                          'closeOutsideClick' => $validated_attributes['close-outside-click'],
+			                                          'closeEscKey' => $validated_attributes['close-esc-key'],
 			                                          'reappearDelay' => $validated_attributes['reappear-delay'],
 			                                          'isModal' => $validated_attributes['modal'],
 			                                          'openAnimation' => $validated_attributes['open-animation'],
@@ -285,6 +288,7 @@ final class Shortcode {
 		// Sanitize boolean attributes using filter_var.
 		$validated['show-on-exit-intent'] = filter_var( $processed_attributes['show-on-exit-intent'], FILTER_VALIDATE_BOOLEAN );
 		$validated['close-outside-click'] = filter_var( $processed_attributes['close-outside-click'], FILTER_VALIDATE_BOOLEAN );
+		$validated['close-esc-key'] = filter_var( $processed_attributes['close-esc-key'], FILTER_VALIDATE_BOOLEAN );
 		$validated['modal'] = filter_var( $processed_attributes['modal'], FILTER_VALIDATE_BOOLEAN );
 
 		// Sanitize 'show-after-time': integer (seconds) or false.
