@@ -141,7 +141,8 @@ final class Shortcode {
 		}
 
 		// Process any nested shortcodes within the main popup content.
-		$popup_content = do_shortcode( (string) $content );
+		$content = $this->cleanup_wp_mess( (string) $content );
+		$popup_content = do_shortcode( $content );
 
 		/**
 		 * Filters the content of the Kntnt Popup before it is displayed.
@@ -586,6 +587,71 @@ final class Shortcode {
 
 		// Ensure a string is always returned, even if buffering failed or template was empty.
 		return $html_output ?: '';
+
+	}
+
+	/**
+	 * Cleans up common formatting issues in shortcode content likely caused by wpautop.
+	 *
+	 * This function addresses:
+	 * - Leading </p> tags.
+	 * - Leading <p> tags if the content immediately starts with a block-level element.
+	 * - Redundant <br /> tags inside paragraphs that are properly closed (e.g., <p>text<br /></p> -> <p>text</p>).
+	 * - Paragraphs at the very end of the content that are "closed" with <br /> instead of </p>
+	 * (e.g., ...<p>text<br /> -> ...<p>text</p>).
+	 * - Trailing <br /> tags.
+	 * - Trailing <p> or </p> tags.
+	 *
+	 * @param string $content The raw content passed to the shortcode.
+	 *
+	 * @return string The cleaned content.
+	 */
+	function cleanup_wp_mess( $content ) {
+
+		if ( ! is_string( $content ) || empty( trim( $content ) ) ) {
+			return '';
+		}
+
+		// 1. Initial trim
+		$content = trim( $content );
+
+		// 2. Remove leading </p> and any immediately following whitespace (often </p>\n)
+		$content = preg_replace( '/^<\/p>\s*/is', '', $content );
+		$content = trim( $content ); // Re-trim as new leading whitespace might be exposed
+
+		// 3. Conditionally remove a leading <p> tag if it's immediately followed by a known block-level element.
+		// This handles cases where wpautop wraps the entire shortcode's content block in a <p>.
+		// List of common block elements. Script and style are included as they behave like block elements in this context.
+		$block_elements_pattern = '<(?:h[1-6r]|div|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|blockquote|pre|form|figure|section|article|aside|footer|header|nav|main|details|summary|dl|dt|dd|fieldset|legend|address|hr|script|style)';
+		$content = preg_replace( '/^<p>\s*(' . $block_elements_pattern . ')/is', '$1', $content );
+		$content = trim( $content );
+
+		// 4. Fix <p>Text<br /></p> to <p>Text</p> (removes redundant <br /> before closing </p>)
+		// This targets paragraphs that are correctly closed but have an unnecessary <br /> just before the </p>.
+		$content = preg_replace( '#<p>(.*?)(<br\s*\/?>)\s*<\/p>#is', '<p>$1</p>', $content );
+
+		// 5. Fix <p>Text<br /> (at the end of the content) to <p>Text</p>
+		// This targets paragraphs at the very end of the content string that wpautop might
+		// have "closed" with a <br /> instead of a </p>.
+		// The regex tries to ensure it's a paragraph structure at the end.
+		// It captures content within <p>...</p>, allowing other inline tags,
+		// and ensures it's not crossing into other <p> or </p> tags.
+		$content = preg_replace_callback( '#<p>([^<]*(?:<(?!p>|\/p>)[^<]*)*?)(<br\s*\/?>)\s*$#is', function ( $matches ) {
+			// $matches[1] is the content inside <p> before <br />
+			// $matches[2] is the <br /> tag
+			return '<p>' . rtrim( $matches[1] ) . '</p>'; // Replace trailing <br /> with </p>
+		},                                $content );
+
+		// 6. Remove any remaining solitary <br /> tags at the very end of the content.
+		$content = preg_replace( '/<br\s*\/?>\s*$/is', '', $content );
+
+		// 7. Remove any trailing <p> or </p> tags (often empty or misplaced).
+		$content = preg_replace( '/\s*<\/?p>\s*$/is', '', $content );
+
+		// 8. Final trim
+		$content = trim( $content );
+
+		return $content;
 
 	}
 
