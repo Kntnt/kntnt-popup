@@ -183,6 +183,9 @@ final class Plugin {
 		// Register action to conditionally enqueue assets if shortcode is found.
 		add_action( 'wp_enqueue_scripts', [ $this->assets_manager, 'enqueue_assets_conditionally' ], 20 );
 
+		// Register action to enqueue popup data after shortcodes have been processed.
+		add_action( 'wp_footer', [ $this->assets_manager, 'enqueue_popup_data' ], 5 );
+
 		// Register action to initialize the popup shortcode.
 		add_action( 'init', [ $this->shortcode_handler, 'register_shortcode' ] );
 

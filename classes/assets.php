@@ -189,13 +189,29 @@ final class Assets {
 	}
 
 	/**
-	 * Enqueues registered assets (CSS and JavaScript) if they are marked as needed.
-	 * Localizes popup configurations for use by the JavaScript.
+	 * Enqueues registered CSS assets if they are marked as needed.
 	 * This method is hooked to 'wp_enqueue_scripts'.
 	 *
 	 * @return void
 	 */
 	public function enqueue_assets_conditionally(): void {
+
+		// Proceed only if assets have been flagged as necessary for the current page.
+		if ( $this->assets_are_needed ) {
+
+			// Enqueue the plugin stylesheet early.
+			wp_enqueue_style( Plugin::get_slug() . '-style' );
+
+		}
+	}
+
+	/**
+	 * Enqueues JavaScript assets and popup data after shortcodes have been processed.
+	 * This method is hooked to 'wp_footer' to ensure shortcodes are processed first.
+	 *
+	 * @return void
+	 */
+	public function enqueue_popup_data(): void {
 
 		// Proceed only if assets have been flagged as necessary for the current page.
 		if ( $this->assets_are_needed ) {
@@ -208,9 +224,6 @@ final class Assets {
 
 			// Enqueue the main plugin script; Micromodal will be enqueued as its dependency.
 			wp_enqueue_script( Plugin::get_slug() . '-script' );
-
-			// Enqueue the plugin stylesheet.
-			wp_enqueue_style( Plugin::get_slug() . '-style' );
 
 		}
 	}

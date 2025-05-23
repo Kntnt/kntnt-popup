@@ -720,6 +720,12 @@ If you are not familiar with Git, please create a new ticket on the plugin's iss
 
 ## Changelog
 
+## 1.0.2 (2025-05-23)
+
+- fix: resolve JavaScript initialization timing issue that prevented popups from working
+- fix: move script enqueueing to wp_footer to ensure popup configurations are properly passed to JavaScript
+- improve: split asset loading into CSS (early) and JavaScript (late) phases for better performance
+
 ## 1.0.1 (2025-05-23)
 
 - fix: show-after-time=0 works
