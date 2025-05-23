@@ -720,6 +720,12 @@ If you are not familiar with Git, please create a new ticket on the plugin's iss
 
 ## Changelog
 
+## 1.0.1 (2025-05-23)
+
+- fix: show-after-time=0 works
+- fix: functions works in css
+- fix: correct aria is used 
+
 ## 1.0.0 (2025-05-22)
 
 - Initial release
