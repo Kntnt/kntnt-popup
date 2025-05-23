@@ -318,19 +318,19 @@ final class Shortcode {
 		// Sanitize 'overlay-color': must be a valid CSS color.
 		$overlay_color_value = (string) $processed_attributes['overlay-color'];
 		$overlay_color_default = (string) $this->attribute_omitted_defaults['overlay-color'];
-		$validated['overlay-color'] = $this->is_valid_css_color( $overlay_color_value ) ? $overlay_color_value : $overlay_color_default;
+		$validated['overlay-color'] = $this->sanitize_css( $overlay_color_value, $overlay_color_default );
 
 		// Sanitize 'width': must be a valid CSS length value.
 		$width_default = (string) $this->attribute_omitted_defaults['width'];
-		$validated['width'] = $this->sanitize_css_length( (string) $processed_attributes['width'], $width_default );
+		$validated['width'] = $this->sanitize_css( (string) $processed_attributes['width'], $width_default );
 
 		// Sanitize 'max-height': must be a valid CSS length value.
 		$max_height_default = (string) $this->attribute_omitted_defaults['max-height'];
-		$validated['max-height'] = $this->sanitize_css_length( (string) $processed_attributes['max-height'], $max_height_default );
+		$validated['max-height'] = $this->sanitize_css( (string) $processed_attributes['max-height'], $max_height_default );
 
 		// Sanitize 'padding': must be a valid CSS padding value.
 		$padding_default = (string) $this->attribute_omitted_defaults['padding'];
-		$validated['padding'] = $this->sanitize_css_padding( (string) $processed_attributes['padding'], $padding_default );
+		$validated['padding'] = $this->sanitize_css( (string) $processed_attributes['padding'], $padding_default );
 
 		// Sanitize 'position': must be one of the allowed enum values.
 		$allowed_positions = [ 'center', 'top', 'top-right', 'right', 'bottom-right', 'bottom', 'bottom-left', 'left', 'top-left' ];
@@ -378,11 +378,11 @@ final class Shortcode {
 		$class_value = (string) $processed_attributes['class'];
 		$validated['class'] = $class_value ? implode( ' ', array_map( 'sanitize_html_class', explode( ' ', $class_value ) ) ) : '';
 
-		// Sanitize inline style attributes using WordPress's safecss_filter_attr.
-		$validated['style-overlay'] = safecss_filter_attr( (string) $processed_attributes['style-overlay'] );
-		$validated['style-dialog'] = safecss_filter_attr( (string) $processed_attributes['style-dialog'] );
-		$validated['style-close-button'] = safecss_filter_attr( (string) $processed_attributes['style-close-button'] );
-		$validated['style-content'] = safecss_filter_attr( (string) $processed_attributes['style-content'] );
+		// Sanitize inline style attributes using WordPress's $this->sanitize_css.
+		$validated['style-overlay'] = $this->sanitize_css( (string) $processed_attributes['style-overlay'] );
+		$validated['style-dialog'] = $this->sanitize_css( (string) $processed_attributes['style-dialog'] );
+		$validated['style-close-button'] = $this->sanitize_css( (string) $processed_attributes['style-close-button'] );
+		$validated['style-content'] = $this->sanitize_css( (string) $processed_attributes['style-content'] );
 
 		// Sanitize ARIA labels as plain text fields.
 		$validated['aria-label-popup'] = sanitize_text_field( (string) $processed_attributes['aria-label-popup'] );
@@ -450,108 +450,50 @@ final class Shortcode {
 	}
 
 	/**
-	 * Checks if a given string is a valid CSS color value.
-	 * Uses WordPress's safecss_filter_attr for a basic safety check.
+	 * Sanitize a CSS string by checking for a blacklist of dangerous patterns
+	 * intended to prevent HTML/JS injection.
 	 *
-	 * @param string $color_value The CSS color value to check.
+	 * This is a simpler filter that allows most CSS syntax as long as it
+	 * doesn't match known XSS vectors.
 	 *
-	 * @return bool True if the color value is considered potentially safe, false otherwise.
+	 * @param string $css         The CSS string to sanitize.
+	 * @param string $default_css The default CSS string to return if the CSS string is considered unsafe.
+	 *
+	 * @return string The original CSS string if deemed safe, or an empty string otherwise.
 	 */
-	private function is_valid_css_color( string $color_value ): bool {
+	function sanitize_css( string $css, string $default_css = '' ): string {
 
-		// Trim whitespace and check for empty input.
-		$trimmed_color_value = trim( $color_value );
-		if ( empty( $trimmed_color_value ) ) {
-			return false; // An empty string is not a valid color.
+		$original_css = $css;
+
+		// Decode HTML entities to prevent malicious code from being hidden.
+		$css = wp_kses_decode_entities( $css );
+
+		// Remove CSS comments /* … */ to prevent them from hiding malicious patterns.
+		$css = preg_replace( '/\/\*.*?\*\//s', '', $css );
+
+		// Remove leading and trailing spaces
+		$css = trim( $css );
+
+		// Dangerous patterns to block
+		$blocked_patterns = [
+			'/</',                                 // Blockera '<' för att förhindra HTML-tagginjektion (t.ex. <script>, <img>).
+			'/javascript\s*:/i',                   // "javascript:" URI-schema, med valfria blanksteg
+			'/expression\s*\(/i',                  // "expression(...)" (IE-specifikt)
+			'/(?:behaviour|behavior)\s*:\s*url/i', // "behaviour: url" (IE-specifikt)
+			'/-moz-binding\s*:/i',                 // "-moz-binding:" (Firefox XUL-bindningar)
+			'/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/',   // Kontrolltecken
+		];
+
+		foreach ( $blocked_patterns as $pattern ) {
+			if ( preg_match( $pattern, $css ) ) {
+				return $default_css; // Return default css, since css is considered unsafe.
+			}
 		}
 
-		// Attempt to sanitize the color value using a dummy CSS property.
-		$sanitized_style = safecss_filter_attr( 'color: ' . $trimmed_color_value );
-
-		// Verify if the original color value (or a valid transformation) is present in the sanitized output.
-		// WordPress's safecss_filter_attr might add a semicolon or make other minor changes.
-		return str_contains( $sanitized_style, $trimmed_color_value );
+		// No blocked patterns were found.
+		return $original_css;
 
 	}
-
-	/**
-	 * Sanitizes a CSS length value (e.g., "100px", "50%", "auto", "clamp(...)").
-	 *
-	 * @param string $css_length     The CSS length value.
-	 * @param string $default_length The default value if sanitization fails or input is empty.
-	 *
-	 * @return string The sanitized CSS length or the default.
-	 */
-	private function sanitize_css_length( string $css_length, string $default_length ): string {
-
-		// Trim whitespace and handle empty input by returning the default.
-		$trimmed_css_length = trim( $css_length );
-		if ( empty( $trimmed_css_length ) ) {
-			return $default_length;
-		}
-
-		// Attempt to sanitize the CSS length using a common property like 'width'.
-		$sanitized_style = safecss_filter_attr( 'width:' . $trimmed_css_length );
-
-		// Check if the 'width:' prefix is present in the sanitized output.
-		if ( str_starts_with( $sanitized_style, 'width:' ) ) {
-
-			// Extract the value part after "width:" and remove any trailing semicolon.
-			$extracted_value = trim( substr( $sanitized_style, strlen( 'width:' ) ) );
-			if ( str_ends_with( $extracted_value, ';' ) ) {
-				$extracted_value = rtrim( $extracted_value, ';' );
-			}
-
-			// If a non-empty value was extracted, consider it sanitized.
-			if ( ! empty( $extracted_value ) ) {
-				return $extracted_value;
-			}
-		}
-
-		// Fallback to the default length if sanitization is unsatisfactory.
-		return $default_length;
-
-	}
-
-	/**
-	 * Sanitizes a CSS padding value (e.g., "10px", "10px 20px", "clamp(...)").
-	 *
-	 * @param string $css_padding     The CSS padding value.
-	 * @param string $default_padding The default value if sanitization fails or input is empty.
-	 *
-	 * @return string The sanitized CSS padding or the default.
-	 */
-	private function sanitize_css_padding( string $css_padding, string $default_padding ): string {
-
-		// Trim whitespace and handle empty input by returning the default.
-		$trimmed_css_padding = trim( $css_padding );
-		if ( empty( $trimmed_css_padding ) ) {
-			return $default_padding;
-		}
-
-		// Attempt to sanitize the CSS padding value using the 'padding' property.
-		$sanitized_style = safecss_filter_attr( 'padding:' . $trimmed_css_padding );
-
-		// Check if the 'padding:' prefix is present in the sanitized output.
-		if ( str_starts_with( $sanitized_style, 'padding:' ) ) {
-
-			// Extract the value part after "padding:" and remove any trailing semicolon.
-			$extracted_value = trim( substr( $sanitized_style, strlen( 'padding:' ) ) );
-			if ( str_ends_with( $extracted_value, ';' ) ) {
-				$extracted_value = rtrim( $extracted_value, ';' );
-			}
-
-			// If a non-empty value was extracted, consider it sanitized.
-			if ( ! empty( $extracted_value ) ) {
-				return $extracted_value;
-			}
-		}
-
-		// Fallback to the default padding if sanitization is unsatisfactory.
-		return $default_padding;
-
-	}
-
 
 	/**
 	 * Loads the popup template file and returns its output as a string.
@@ -628,7 +570,7 @@ final class Shortcode {
 
 		// 4. Fix <p>Text<br /></p> to <p>Text</p> (removes redundant <br /> before closing </p>)
 		// This targets paragraphs that are correctly closed but have an unnecessary <br /> just before the </p>.
-		$content = preg_replace( '#<p>(.*?)(<br\s*\/?>)\s*<\/p>#is', '<p>$1</p>', $content );
+		$content = preg_replace( '#<p>(.*?)(<br\s*/?>)\s*</p>#is', '<p>$1</p>', $content );
 
 		// 5. Fix <p>Text<br /> (at the end of the content) to <p>Text</p>
 		// This targets paragraphs at the very end of the content string that wpautop might
@@ -636,7 +578,7 @@ final class Shortcode {
 		// The regex tries to ensure it's a paragraph structure at the end.
 		// It captures content within <p>...</p>, allowing other inline tags,
 		// and ensures it's not crossing into other <p> or </p> tags.
-		$content = preg_replace_callback( '#<p>([^<]*(?:<(?!p>|\/p>)[^<]*)*?)(<br\s*\/?>)\s*$#is', function ( $matches ) {
+		$content = preg_replace_callback( '#<p>([^<]*(?:<(?!p>|/p>)[^<]*)*?)(<br\s*/?>)\s*$#is', function ( $matches ) {
 			// $matches[1] is the content inside <p> before <br />
 			// $matches[2] is the <br /> tag
 			return '<p>' . rtrim( $matches[1] ) . '</p>'; // Replace trailing <br /> with </p>
