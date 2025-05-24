@@ -1,8 +1,20 @@
 {
+  "name": "kntnt-popup",
+  "version": "1.1.1",
+  "description": "WordPress plugin that provides shortcode for creating popups",
   "scripts": {
-    "build": "mkdir -p js && cp node_modules/micromodal/dist/micromodal.min.js js/"
+    "build": "node scripts/build.js",
+    "dev-build": "node scripts/dev-build.js"
   },
-  "dependencies": {
-    "micromodal": "^0.6.1"
-  }
+  "devDependencies": {
+    "micromodal": "^0.6.1",
+    "fs-extra": "^11.2.0",
+    "cssnano": "^6.1.2",
+    "postcss": "^8.4.38",
+    "terser": "^5.31.0",
+    "archiver": "^7.0.1"
+  },
+  "keywords": ["wordpress", "plugin", "popup", "modal"],
+  "author": "TBarregren",
+  "license": "GPL-2.0-or-later"
 }

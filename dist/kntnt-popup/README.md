@@ -71,13 +71,11 @@ Kntnt Popup offers multiple ways to control when and how popups appear and disap
 ### Time-based trigger
 
 **Delayed display:** Show a popup after a specified number of seconds:
-
 ```
 [popup show-after-time="10"]This popup appears after 10 seconds.[/popup]
 ```
 
 **Immediate display:** Show a popup as soon as the page loads:
-
 ```
 [popup show-after-time="0"]This popup appears immediately when the page loads.[/popup]
 ```
@@ -85,7 +83,6 @@ Kntnt Popup offers multiple ways to control when and how popups appear and disap
 ### Scroll-based trigger
 
 Show a popup when the user has scrolled a certain percentage of the page:
-
 ```
 [popup show-after-scroll="75"]This popup appears when you've scrolled 75% of the page.[/popup]
 ```
@@ -93,7 +90,6 @@ Show a popup when the user has scrolled a certain percentage of the page:
 ### Exit intent trigger
 
 Trigger a popup when the user moves their mouse cursor toward the browser's address bar or tab area, indicating they might be about to leave:
-
 ```
 [popup show-on-exit-intent]Wait! Don't leave yet. Check out this special offer![/popup]
 ```
@@ -144,13 +140,11 @@ Kntnt Popup provides several ways for users to close popups, giving you complete
 ### Built-in close button
 
 Add a close button (×) in the top-right corner of the popup:
-
 ```
 [popup close-button]This popup has a close button.[/popup]
 ```
 
 You can customize the close button character:
-
 ```
 [popup close-button="✕"]This popup uses a different close icon.[/popup]
 ```
@@ -158,7 +152,6 @@ You can customize the close button character:
 ### Click outside to close
 
 Allow users to close the popup by clicking anywhere outside the popup area:
-
 ```
 [popup close-outside-click]Click outside this popup to close it.[/popup]
 ```
@@ -166,7 +159,6 @@ Allow users to close the popup by clicking anywhere outside the popup area:
 ### ESC key to close
 
 Enable closing the popup by pressing the ESC key:
-
 ```
 [popup close-esc-key]Press ESC to close this popup.[/popup]
 ```
@@ -176,7 +168,6 @@ Enable closing the popup by pressing the ESC key:
 Make any element inside or outside the popup close it by adding the `data-popup-close` attribute:
 
 **Close link inside popup content:**
-
 ```
 [popup modal show-after-time="5"]
 <h2>Welcome!</h2>
@@ -186,7 +177,6 @@ Make any element inside or outside the popup close it by adding the `data-popup-
 ```
 
 **Close button inside popup:**
-
 ```
 [popup show-after-scroll="50"]
 <h2>Newsletter Signup</h2>
@@ -199,7 +189,6 @@ Make any element inside or outside the popup close it by adding the `data-popup-
 ```
 
 **External close trigger (anywhere on the page):**
-
 ```html
 <!-- This button can be anywhere on your page -->
 <button data-popup-close>Close any open popup</button>
@@ -832,7 +821,7 @@ For development purposes (to get the MicroModal.js dependency), run:
 npm run dev-build
 ```
 
-This copies the necessary JavaScript file (`micromodal.min.js`) from `node_modules` to the correct location within the plugin's `vendor/micromodal/` directory.
+This copies the necessary JavaScript file (`micromodal.min.js`) from `node_modules` to the correct location within the plugin's `js/` directory.
 
 ### Production Build
 
@@ -843,7 +832,6 @@ npm run build
 ```
 
 This command:
-
 1. Cleans the `dist` directory
 2. Copies all necessary plugin files to `dist/kntnt-popup/`
 3. Minifies and optimizes the CSS file using cssnano
@@ -855,7 +843,6 @@ The production build creates optimized files that are smaller and faster to load
 ### Build Output
 
 After running `npm run build`, you'll find:
-
 - `dist/kntnt-popup/` - The complete plugin directory with optimized files
 - `dist/kntnt-popup.zip` - A ZIP archive ready for WordPress installation
 
@@ -874,7 +861,6 @@ npm update
 ```
 
 **Important:** After updating dependencies, you must run the appropriate build command again:
-
 - For development: `npm run dev-build`
 - For production: `npm run build`
 
@@ -902,12 +888,8 @@ If you are not familiar with Git, please create a new ticket on the plugin's iss
 - enhance: implement CSS minification using cssnano for optimized file sizes
 - enhance: implement JavaScript minification using terser for better performance
 - enhance: add automated ZIP file generation for easy distribution
-- enhance: reorganize build scripts into dedicated `scripts/` directory for better project structure
-- enhance: move third-party dependencies to `vendor/` directory following WordPress best practices
-- enhance: improve dependency management with separate dev and production workflows
 - improve: restructure development workflow with separate dev and production builds
 - improve: add comprehensive build documentation for developers
-- improve: switch from zip-a-folder to archiver for more reliable ZIP generation
 
 ## 1.1.0 (2025-05-23)
 
