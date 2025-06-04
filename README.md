@@ -797,6 +797,30 @@ document.addEventListener('kntnt_popup:after_close', function (event) {
 });
 ```
 
+## Programmatic Usage with `do_shortcode()`
+
+While Kntnt Popup typically detects the `[popup]` shortcode within your post content to load necessary assets (CSS and JavaScript), there might be cases where you want to render a popup programmatically using the WordPress `do_shortcode()` function, for instance, by hooking into a theme action.
+
+The plugin is designed to avoid loading assets if the shortcode is not detected in the page's main content. If the shortcode is added later in the WordPress loading sequence using `do_shortcode()` (e.g., after the `<head>` section of your page has already been generated), it might be too late for the plugin to enqueue its CSS files in the optimal place. This could result in the popup appearing unstyled initially.
+
+To ensure assets are loaded correctly when using `do_shortcode()` programmatically, you need to call the `mark_assets_as_needed()` method on the plugin's asset manager instance to manually inform the plugin that its assets will be required on the page. This should be done early enough in the WordPress lifecycle, typically during the `wp_enqueue_scripts` action, before the plugin's own asset loading logic runs.
+
+Example:
+
+```php
+add_action( 'wp_enqueue_scripts', function () {
+  if ( is_plugin_active( 'kntnt-popup/kntnt-popup.php' ) ) {
+	  \Kntnt\Popup\Plugin::get_instance()->get_assets_manager()->mark_assets_as_needed();
+  }
+} );
+
+add_action( 'wp_body_open', function () {
+  if ( is_plugin_active( 'kntnt-popup/kntnt-popup.php' ) ) {
+    echo do_shortcode( '[popup]Hello world![/popup]' );
+  }
+} );
+```
+
 ## Building from Source (for Developers)
 
 If you have downloaded the plugin source code directly from GitHub, you'll need to install dependencies and build the plugin for distribution.
